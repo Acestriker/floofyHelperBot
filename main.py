@@ -1,5 +1,5 @@
-#Vetion 1.0 | By DoshiDog | https://github.com/DoshiDog
-#DO NOT EDDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
+#Version 1.0 | By DoshiDog | https://github.com/DoshiDog
+#DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
 #you also might need this if you dont have python 2.0 installed 
 import os
 import discord
@@ -22,7 +22,7 @@ bot = commands.Bot(command_prefix =PREFIX,intents=intents)
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
-    await bot.change_presence(activity=discord.Game(name="~Help for help"))
+    await bot.change_presence(activity=discord.Game(name="~help | Ace's Abode"))
 
 @bot.event
 async def on_command_error(ctx, error):

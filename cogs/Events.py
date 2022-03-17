@@ -7,7 +7,7 @@ class MyView(View):
   def __init__(self,bot):
     super().__init__(timeout=None)
     self.bot = bot
-    self.EventRole=953722448656891935 # < < < change to Your Wanted Role 
+    self.EventRole=953970479499202571 # < < < change to Your Wanted Role 
   
   @discord.ui.button(label = "Apply",style=1,custom_id="Apply",emoji="🎉")
   async def Button_callback(self, button, interaction):
@@ -17,11 +17,11 @@ class MyView(View):
       Data["EventUsers"][interaction.user.name]
     except:
       Data["EventUsers"][interaction.user.name] = interaction.user.id
-      await interaction.response.send_message(f"You have been Registerd",ephemeral=True)
+      await interaction.response.send_message(f"You have been registered",ephemeral=True)
       role = discord.utils.get(interaction.user.guild.roles, id=self.EventRole)
       await interaction.user.add_roles(role)
     else:
-      await interaction.response.send_message(f"You are already Registerd",ephemeral=True)
+      await interaction.response.send_message(f"You are already registered",ephemeral=True)
     if Data["vrclink"] != None:
       try:
         embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
@@ -29,21 +29,22 @@ class MyView(View):
         embed.set_image(url="https://media.discordapp.net/attachments/943888861069709383/952670455217659924/VRChat_1920x1080_2022-03-13_20-41-09.979.png?width=960&height=540")
         await interaction.user.send(embed=embed)
       except:
-         interaction.response.follow_up(f"You cant resave an invte link if your dms are closed",ephemeral=True)
+         interaction.response.follow_up(f"You cant receive an invte link if your dms are closed",ephemeral=True)
     with open("Data.json","w") as f:
       json.dump(Data,f,indent=4)
   
   async def on_error(self,error,item,interaction):
-    await interaction.response.send_message("🔥Oh God Somthings gone wrong <@269759748302176256>🔥")
+    await interaction.response.send_message("🔥Oh God Somthings gone wrong <@269759748302176256><@632029144196186122>🔥")
     raise error
     
 class Events(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
-        self.guild = bot.get_guild(933389211690754058) # < < < change to Your Server ID
+        #self.guild = self.bot.get_guild(943404593105231882) # < < < change to Your Server ID
         self.me = 953641286232047627 # < < < change to Your Bots ID
-        self.EventChannel = 953671662258233364 # < < < change to Your Wanted Role
-        self.EventAttendeeRole = 953699981871697940 # < < < change to Your Wanted Role
+        self.EventChannel = 952674696497860668 # < < < change to Your Wanted Role
+        self.EventAttendeeRole = 952668569068511323 # < < < change to Your Wanted Role
+        self.EventRole=952907898206441532
 
     @commands.Cog.listener()
     async def on_voice_state_update(self,member, before, after):
@@ -124,7 +125,7 @@ class Events(commands.Cog):
     async def TempClearON(self,ctx):
       self.TempRoles.start()
       await ctx.message.delete() 
-      message = await ctx.send("Started Removing Temp Roles")
+      message = await ctx.send("Started removing temp roles")
       await message.delete(delay=5)
     
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
@@ -132,24 +133,42 @@ class Events(commands.Cog):
     async def TempClearOFF(self,ctx):
       self.TempRoles.stop()
       await ctx.message.delete() 
-      message = await ctx.send("Stop Removing Temp Roles")
+      message = await ctx.send("Stopped removing temp roles")
       await message.delete(delay=5)
     @commands.command()
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def ClearEvents(self,ctx):
-      await ctx.message.delete()
-      with open("Data.json","r") as f:
-        Data = json.load(f)
-      i = 0
-      for item in Data["TempRoles"]:
-        del Data["TempRoles"][i]
-        user = self.guild.get_member(item[0])
-        role = discord.utils.get(self.guild.roles, id=self.EventAttendeeRole)
-        await user.remove_roles(role)
-        i =+1
-      with open("Data.json","w") as f:
-        json.dump(Data,f,indent=4)
-      message =await ctx.send("all Temp Roles Removed")
-      await message.delete(delay=5)
+        await ctx.message.delete()
+        with open("Data.json","r") as f:
+            Data = json.load(f)
+        for i in range(len(Data["TempRoles"])):
+            del Data["TempRoles"][i]
+        with open("Data.json","w") as f:
+            json.dump(Data,f,indent=4)
+        guild = self.bot.get_guild(943404593105231882)
+        role = discord.utils.get(guild.roles, id=self.EventAttendeeRole)
+        if role is None:
+            await ctx.send("Role not found on this server!")
+            return
+        empty = True
+        for member in guild.members:
+            if role in member.roles:
+                await ctx.send("{0.name}: {0.id}".format(member))
+                empty = False
+        if empty:
+            await ctx.send(f"Nobody has the role {role.mention}")
+        role = discord.utils.get(guild.roles, id=self.EventRole)
+        if role is None:
+            await ctx.send("Role not found on this server!")
+            return
+        empty = True
+        for member in guild.members:
+            if role in member.roles:
+                await ctx.send("{0.name}: {0.id}".format(member))
+                empty = False
+        if empty:
+            await ctx.send(f"Nobody has the role {role.mention}")
+        message =await ctx.send("All temp roles removed")
+        await message.delete(delay=5)
 def setup(bot):
   bot.add_cog(Events(bot))
