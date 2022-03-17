@@ -7,21 +7,21 @@ class MyView(View):
   def __init__(self,bot):
     super().__init__(timeout=None)
     self.bot = bot
-    self.EventRole=953970479499202571 # < < < change to Your Wanted Role 
+    self.EventRole=952907898206441532 # < < < change to Your Wanted Role 
   
   @discord.ui.button(label = "Apply",style=1,custom_id="Apply",emoji="🎉")
   async def Button_callback(self, button, interaction):
     with open("Data.json","r") as f:
       Data = json.load(f)
-    try:
-      Data["EventUsers"][interaction.user.name]
-    except:
-      Data["EventUsers"][interaction.user.name] = interaction.user.id
-      await interaction.response.send_message(f"You have been registered",ephemeral=True)
-      role = discord.utils.get(interaction.user.guild.roles, id=self.EventRole)
-      await interaction.user.add_roles(role)
-    else:
+    if interaction.user.id in Data["EventIDs"]:
       await interaction.response.send_message(f"You are already registered",ephemeral=True)
+    else:
+      Data["EventUsers"][interaction.user.name] = interaction.user.id
+      await interaction.response.send_message(f"You have been registered, you can now join <#952674696497860668>! Check dms for invite code",ephemeral=True)
+      role = discord.utils.get(interaction.user.guild.roles, id=self.EventRole)
+      print(role)
+      await interaction.user.add_roles(role)
+      Data["EventIDs"].append(interaction.user.id)
     if Data["vrclink"] != None:
       try:
         embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
@@ -34,7 +34,7 @@ class MyView(View):
       json.dump(Data,f,indent=4)
   
   async def on_error(self,error,item,interaction):
-    await interaction.response.send_message("🔥Oh God Somthings gone wrong <@269759748302176256><@632029144196186122>🔥")
+    await interaction.response.follow_up("🔥Oh God Somthings gone wrong <@269759748302176256><@632029144196186122>🔥",ephemeral=False)
     raise error
     
 class Events(commands.Cog):
@@ -96,25 +96,26 @@ class Events(commands.Cog):
           json.dump(Data,f,indent=4)
       
       embed=discord.Embed(title="Event", description=args, color=0x00ffee)
-      embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/632029144196186122/a04871b6a79f2eadf7a76c683e00dd70.png?size=1024")
+      embed.set_thumbnail(url="https://media.discordapp.net/attachments/944096582851231804/954016555765760020/C9851FF7-B5B1-42F2-A307-2D8E119B35A8-300x176.jpg")
       embed.add_field(name="Click The Button", value="Bellow To Apply", inline=False)
       embed.add_field(name="Event Starting in:",value=f"<t:{unix}:R>",inline=False)
       view = MyView(ctx)
       await ctx.send(view=view,embed=embed)
       await ctx.message.delete()
 
-    @tasks.loop(hours=1)
+    @tasks.loop(seconds=30)
     async def TempRoles(self):
       import time
+      guild = self.bot.get_guild(943404593105231882)
       now = int(time.time())
       with open("Data.json","r") as f:
         Data = json.load(f)
       i = 0
       for item in Data["TempRoles"]:
-        if now -item[1]>259200:
+        if now -item[1]>20:
           del Data["TempRoles"][i]
-          user = self.guild.get_member(item[0])
-          role = discord.utils.get(self.guild.roles, id=self.EventAttendeeRole)
+          user = guild.get_member(item[0])
+          role = discord.utils.get(guild.roles, id=self.EventAttendeeRole)
           await user.remove_roles(role)
         i =+1
       with open("Data.json","w") as f:
@@ -137,10 +138,23 @@ class Events(commands.Cog):
       await message.delete(delay=5)
     @commands.command()
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def ClearEvents(self,ctx):
+    async def ClearEvents(self,ctx,msg:int=None):
         await ctx.message.delete()
+        if msg != None:
+          try:
+            msg = await ctx.fetch_message(msg)
+          except:
+            await ctx.send("Invalid Message ID")
+          else:
+            embeds = msg.embeds
+            for embed in embeds:
+              embed.to_dict
+            embed.title = f"{embed.title} (Event Over)"
+            await msg.edit(embed=embed)
         with open("Data.json","r") as f:
             Data = json.load(f)
+        Data["EventIDs"] = []
+        print(Data["EventIDs"])
         for i in range(len(Data["TempRoles"])):
             del Data["TempRoles"][i]
         with open("Data.json","w") as f:
@@ -153,7 +167,8 @@ class Events(commands.Cog):
         empty = True
         for member in guild.members:
             if role in member.roles:
-                await ctx.send("{0.name}: {0.id}".format(member))
+                await ctx.send(f"Removed {role.mention} from {member.name}")
+                await member.remove_roles(role)
                 empty = False
         if empty:
             await ctx.send(f"Nobody has the role {role.mention}")
@@ -164,11 +179,11 @@ class Events(commands.Cog):
         empty = True
         for member in guild.members:
             if role in member.roles:
-                await ctx.send("{0.name}: {0.id}".format(member))
+                await ctx.send(f"Removed {role.mention} from {member.name}")
+                await member.remove_roles(role)
                 empty = False
         if empty:
             await ctx.send(f"Nobody has the role {role.mention}")
-        message =await ctx.send("All temp roles removed")
-        await message.delete(delay=5)
+        await ctx.send("All temp roles removed")
 def setup(bot):
   bot.add_cog(Events(bot))

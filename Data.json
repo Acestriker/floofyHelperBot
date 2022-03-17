@@ -1,9 +1,11 @@
 {
     "EventUsers": {
-        "Doshi": 269759748302176256,
-        "Acestriker": 632029144196186122
+        "Acestriker": 632029144196186122,
+        "Blonk": 372502582834233354,
+        "Doshi": 269759748302176256
     },
     "timeCodes": {},
     "TempRoles": [],
-    "vrclink": "https://test.com/"
+    "vrclink": "https://test.com",
+    "EventIDs": []
 }

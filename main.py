@@ -76,7 +76,7 @@ async def reload(ctx,extension):
 			bot.unload_extension(f"cogs.{extension}")
 			bot.load_extension(f"cogs.{extension}")
 		except:
-			message = await ctx.send(f"faild to reload {extension}")
+			message = await ctx.send(f"failed to reload {extension}")
 			await message.delete(delay=5)
 		else:
 			message = await ctx.send(f"reloaded {extension}")
