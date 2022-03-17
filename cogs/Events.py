@@ -82,28 +82,28 @@ class Events(commands.Cog):
     @commands.command()
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def Event(self,ctx,unix:int,Link,*,args):
+      if unix == 0:
+        import time
+        unix = int(time.time())
+      with open("Data.json","r") as f:
+          Data = json.load(f)
       if Link == "None" or Link == "none":
-        with open("Data.json","r") as f:
-          Data = json.load(f)
         Data["vrclink"]=None
-        with open("Data.json","w") as f:
-          json.dump(Data,f,indent=4)
       else:
-        with open("Data.json","r") as f:
-          Data = json.load(f)
         Data["vrclink"]=Link
-        with open("Data.json","w") as f:
-          json.dump(Data,f,indent=4)
-      
+      Data["EventUnix"] = unix  
+      with open("Data.json","w") as f:
+        json.dump(Data,f,indent=4)
+      self.EndEvent.start()
       embed=discord.Embed(title="Event", description=args, color=0x00ffee)
-      embed.set_thumbnail(url="https://media.discordapp.net/attachments/944096582851231804/954016555765760020/C9851FF7-B5B1-42F2-A307-2D8E119B35A8-300x176.jpg")
+      embed.set_thumbnail(url="https://media.discordapp.net/attachments/944096582851231804/954098014937575484/sfegrge.png?width=351&height=203")
       embed.add_field(name="Click The Button", value="Bellow To Apply", inline=False)
       embed.add_field(name="Event Starting in:",value=f"<t:{unix}:R>",inline=False)
       view = MyView(ctx)
       await ctx.send(view=view,embed=embed)
       await ctx.message.delete()
 
-    @tasks.loop(seconds=30)
+    @tasks.loop(hours=1)
     async def TempRoles(self):
       import time
       guild = self.bot.get_guild(943404593105231882)
@@ -185,5 +185,30 @@ class Events(commands.Cog):
         if empty:
             await ctx.send(f"Nobody has the role {role.mention}")
         await ctx.send("All temp roles removed")
+    @tasks.loop(hours=1)
+    async def EndEvent(self):
+      import time
+      guild = self.bot.get_guild(943404593105231882)
+      now = int(time.time())
+      with open("Data.json","r") as f:
+        Data = json.load(f)
+      if Data["EventUnix"]==0:
+        self.EndEvent.stop()
+      elif now-Data["EventUnix"]>=21600:
+        Data["EventIDs"] = []
+        Data["EventUnix"]=0
+        role = discord.utils.get(guild.roles, id=self.EventRole)
+        if role is None:
+            return
+        empty = True
+        for member in guild.members:
+            if role in member.roles:
+                await member.remove_roles(role)
+                empty = False
+        if empty:
+            return
+        self.EndEvent.stop()
+      with open("Data.json","w") as f:
+        json.dump(Data,f,indent=4)
 def setup(bot):
   bot.add_cog(Events(bot))

@@ -6,6 +6,7 @@
     },
     "timeCodes": {},
     "TempRoles": [],
-    "vrclink": "https://test.com",
-    "EventIDs": []
+    "vrclink": null,
+    "EventIDs": [],
+    "EventUnix": 1647547896
 }
