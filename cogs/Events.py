@@ -7,7 +7,7 @@ class MyView(View):
   def __init__(self,bot):
     super().__init__(timeout=None)
     self.bot = bot
-    self.EventRole=952907898206441532 # < < < change to Your Wanted Role 
+    self.EventRole=953722448656891935 # < < < change to Your Wanted Role 
   
   @discord.ui.button(label = "Apply",style=1,custom_id="Apply",emoji="🎉")
   async def Button_callback(self, button, interaction):
@@ -40,10 +40,10 @@ class MyView(View):
 class Events(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
-        self.guild = bot.get_guild(943404593105231882) # < < < change to Your Server ID
-        self.me = 953794936736727110 # < < < change to Your Bots ID
-        self.EventChannel = 952674696497860668 # < < < change to Your Wanted Role
-        self.EventAttendeeRole = 952668569068511323 # < < < change to Your Wanted Role
+        self.guild = bot.get_guild(933389211690754058) # < < < change to Your Server ID
+        self.me = 953641286232047627 # < < < change to Your Bots ID
+        self.EventChannel = 953671662258233364 # < < < change to Your Wanted Role
+        self.EventAttendeeRole = 953699981871697940 # < < < change to Your Wanted Role
 
     @commands.Cog.listener()
     async def on_voice_state_update(self,member, before, after):
