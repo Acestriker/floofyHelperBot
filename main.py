@@ -2,7 +2,7 @@
 #DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
 from distutils.log import error
 import os
-import cronitor
+#import cronitor
 import discord
 from discord.ext import commands,tasks
 from discord.ext.commands import CommandNotFound
@@ -17,8 +17,8 @@ def isAce(ctx):
 	return ctx.author.id==632029144196186122
 initial_extensions = STARTUP
 intents = discord.Intents().all()
-cronitor.api_key = '27672841ce794a86b38064638b5a48f5'
-monitor = cronitor.Monitor('x5MIGv')
+#cronitor.api_key = '27672841ce794a86b38064638b5a48f5'
+#monitor = cronitor.Monitor('x5MIGv')
 #---------------------------------------------------------------------------------------------------------------------------#
 
 #---------------------------------------------------------------------------------------------------------------------------#
@@ -30,7 +30,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="~help | Ace's Abode"))
     for ext in initial_extensions:
         await bot.load_extension(ext)
-    Ping.start()
+    #Ping.start()
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -104,7 +104,7 @@ async def ListAll(ctx):
 	await ctx.send(extentions)
 @tasks.loop(seconds=30)
 async def Ping():    
-    monitor.ping(message="Alive!")
+    #monitor.ping(message="Alive!")
     print("Ping Sent")
 
 #---------------------------------------------------------------------------------------------------------------------------#		

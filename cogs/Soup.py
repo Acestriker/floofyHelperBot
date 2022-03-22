@@ -4,7 +4,6 @@ from discord.ui import Button, View
 from discord.ext import commands
 import requests
 import json
-
 class Soup(commands.Cog,description=":bowl_with_spoon: Soup Module"):
 	def __init__(self,bot):
 		self.bot = bot
@@ -38,5 +37,11 @@ class Soup(commands.Cog,description=":bowl_with_spoon: Soup Module"):
 		Data["soup"].append(message.id)
 		with open("messages.json","w") as f:
 			json.dump(Data,f)
+	@commands.command(brief="Run it and find out <:death:946550673502273586>",description="Run it and find out <:death:946550673502273586>")
+	async def nerd(self,ctx):
+		x = requests.get('https://geek-jokes.sameerkumar.website/api?format=json')
+		Post = json.loads(x.text)
+		await ctx.send(f"{Post['joke']}")
+		await ctx.message.delete()
 async def setup(bot):
   await bot.add_cog(Soup(bot))
