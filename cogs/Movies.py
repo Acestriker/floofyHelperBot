@@ -14,7 +14,7 @@ class Movies(commands.Cog,description=":film_frames: Movies Nights Module"):
     @commands.command(brief="Auto Movie Poll Command",description="this Command let you automaticaly Create a movie Poll, it will pick 3 films form our server side list and Put them in a poll")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def Movie(self,ctx):
-      await ctx.message.delete()
+      await ctx.message.delete(delay=1)
       import random
       with open("Data.json","r") as f:
           Data = json.load(f)
@@ -43,7 +43,7 @@ class Movies(commands.Cog,description=":film_frames: Movies Nights Module"):
         Data["Movies"].append(args.lower())
         message = await ctx.send(f"Thanks For the sugestion! {args} has been added to our movie Listings!")
       else:
-        await ctx.message.delete()
+        await ctx.message.delete(delay=1)
         message = await ctx.send("movie has alread been suggested!")
         await message.delete(delay=10)
       with open("Data.json","w") as f:

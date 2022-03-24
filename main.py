@@ -2,6 +2,7 @@
 #DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
 from distutils.log import error
 import os
+from turtle import delay
 #import cronitor
 import discord
 from discord.ext import commands,tasks
@@ -35,18 +36,21 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
 	if isinstance(error, CommandNotFound):
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 		embed=discord.Embed(title="Command Error ☹", color=0xff4d00)
 		embed.add_field(name="Unknown Command", value="Invalid Command Entered for a list of commands do ~help", inline=False)
 		message = await ctx.send(embed=embed)
 		await message.delete(delay=10)
 		return
 	if isinstance(error, commands.MissingRequiredArgument):
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 		embed=discord.Embed(title="Command Error ☹", color=0xff4d00)
 		embed.add_field(name="Missing Arguments", value="make sure you using the command correctly", inline=False)
 		message = await ctx.send(embed=embed)
 		await message.delete(delay=10)
+		return
+	if isinstance(error,discord.NotFound):
+		print("swwoop")
 		return
 	raise error
 
@@ -55,7 +59,7 @@ async def on_command_error(ctx, error):
 @bot.command()
 @commands.check_any(commands.check(isDoshi),commands.check(isAce))
 async def load(ctx,extension):
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 		try:
 			await bot.load_extension(f"cogs.{extension}")	
 		except:
@@ -68,7 +72,7 @@ async def load(ctx,extension):
 @bot.command()
 @commands.check_any(commands.check(isDoshi),commands.check(isAce))
 async def unload(ctx,extension):
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 		try:
 			await bot.unload_extension(f"cogs.{extension}")
 		except:
@@ -81,7 +85,7 @@ async def unload(ctx,extension):
 @bot.command()
 @commands.check_any(commands.check(isDoshi),commands.check(isAce))
 async def reload(ctx,extension):
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 		try:
 			await bot.unload_extension(f"cogs.{extension}")
 			await bot.load_extension(f"cogs.{extension}")

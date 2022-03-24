@@ -1,6 +1,7 @@
 from distutils.log import error
 import os
 from pydoc import describe
+from turtle import delay
 import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
@@ -12,14 +13,14 @@ class Helper(commands.HelpCommand):
         super().__init__()
         self.Owner = "`Doshi#4882` and `Acestriker#0001`"
     async def send_bot_help(self, mapping,):
-        await self.context.message.delete()
+        await self.context.message.delete(delay=1)
         emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
                                 description=f'Use `{PREFIX}help <module>` to gain more information about that module '
                                             f':smiley:\n')
         emb.set_author(name="⚒ Help Menu", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
         cogs_desc = ''
         for cog in mapping:
-            if cog != None:
+            if cog != None and cog.qualified_name not in HIDDENCOGS:
                 Desc = ""
                 if cog.description != None:
                     Desc = f"{cog.description}" 

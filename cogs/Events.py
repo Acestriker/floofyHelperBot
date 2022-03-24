@@ -88,7 +88,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
         except:
           found = False
         else:
-            await ctx.message.delete()
+            await ctx.message.delete(delay=1)
             button = Button(label="Event Over",style=discord.ButtonStyle.red,emoji="☹")
             async def button_callback(interaction):
                 await interaction.response.send_message("Looks like you missed the event ☹, if you dont want to miss another get the <@&943946711208980602> Role in <#943891320802529330>",ephemeral=True)
@@ -112,7 +112,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
         except:
           found = False
         else:
-          await ctx.message.delete()
+          await ctx.message.delete(delay=1)
           view = MyView(ctx)
           await msg.edit(view=view)
           await ctx.send(f"message was found and Fixed in <#{channel.id}>")
@@ -142,12 +142,12 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       embed.add_field(name="Event Start Time:",value=f"<t:{unix}:R>",inline=False)
       view = MyView(ctx)
       await ctx.send(view=view,embed=embed)
-      await ctx.message.delete()
+      await ctx.message.delete(delay=1)
 
     @commands.command(brief="Removes the <@&952668569068511323> Role from Everyone",help="",description="Running this command will remove the <@&952668569068511323> role from **Everyone** on the server")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def EndPerks(self,ctx):
-      await ctx.message.delete()
+      await ctx.message.delete(delay=1)
       with open("Data.json","r") as f:
           Data = json.load(f)
       Data["EventIDs"] = []
@@ -171,7 +171,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
     @commands.command(brief="Removes the <@&952907898206441532> Role from Everyone",help="",description="Running this command will remove the <@&952907898206441532> role from **Everyone** on the server")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def EndEvent(self,ctx):
-      await ctx.message.delete()
+      await ctx.message.delete(delay=1)
       with open("Data.json","r") as f:
           Data = json.load(f)
       for i in range(len(Data["TempRoles"])):

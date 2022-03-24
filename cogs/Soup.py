@@ -31,7 +31,7 @@ class Soup(commands.Cog,description=":bowl_with_spoon: Soup Module"):
 		embed.set_image(url=Post["url"])
 		message = await ctx.send(embed=embed)
 		await message.add_reaction("🎲")
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 		with open("messages.json","r") as f:
 			Data = json.load(f)
 		Data["soup"].append(message.id)
@@ -42,6 +42,6 @@ class Soup(commands.Cog,description=":bowl_with_spoon: Soup Module"):
 		x = requests.get('https://geek-jokes.sameerkumar.website/api?format=json')
 		Post = json.loads(x.text)
 		await ctx.send(f"{Post['joke']}")
-		await ctx.message.delete()
+		await ctx.message.delete(delay=1)
 async def setup(bot):
   await bot.add_cog(Soup(bot))
