@@ -18,18 +18,10 @@ class MyView(View):
       await interaction.response.send_message(f"You are already registered",ephemeral=True)
     else:
       Data["EventUsers"][interaction.user.name] = interaction.user.id
-      await interaction.response.send_message(f"You have been registered, you can now join <#952674696497860668>! Check dms for invite code",ephemeral=True)
+      Data["EventIDs"].append(interaction.user.id)
       role = discord.utils.get(interaction.user.guild.roles, id=self.EventRole)
       await interaction.user.add_roles(role)
-      Data["EventIDs"].append(interaction.user.id)
-    if Data["vrclink"] != None:
-      try:
-        embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
-        embed.set_thumbnail(url="https://assets.vrchat.com/www/brand/vrchat-logo-white-transparent-crop-background.png")
-        embed.set_image(url="https://media.discordapp.net/attachments/943888861069709383/952670455217659924/VRChat_1920x1080_2022-03-13_20-41-09.979.png?width=960&height=540")
-        await interaction.user.send(embed=embed)
-      except:
-         interaction.response.follow_up(f"You cant receive an invte link if your dms are closed",ephemeral=True)
+      await interaction.response.send_message(f"You have been registered, you can now join <#952674696497860668>! Check dms for invite code",ephemeral=True)
     with open("Data.json","w") as f:
       json.dump(Data,f,indent=4)
   
@@ -41,7 +33,7 @@ class MyView(View):
 class Events(commands.Cog,description=":tada: Event Hosting Module"):
     def __init__(self,bot):
         self.bot = bot
-        #self.guild = self.bot.get_guild(943404593105231882) # < < < change to Your Server ID
+        self.guild = 943404593105231882 # < < < change to Your Server ID
         self.me = 953641286232047627 # < < < change to Your Bots ID
         self.EventChannel = 952674696497860668 # < < < change to Your Wanted Role
         self.EventAttendeeRole = 952668569068511323 # < < < change to Your Wanted Role
@@ -153,7 +145,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       Data["EventIDs"] = []
       with open("Data.json","w") as f:
           json.dump(Data,f,indent=4)
-      guild = self.bot.get_guild(943404593105231882)
+      guild = self.bot.get_guild(self.guild)
       role = discord.utils.get(guild.roles, id=self.EventAttendeeRole)
       if role is None:
           await ctx.send("Role not found on this server!")
@@ -178,7 +170,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           del Data["TempRoles"][i]
       with open("Data.json","w") as f:
           json.dump(Data,f,indent=4)
-      guild = self.bot.get_guild(943404593105231882)
+      guild = self.bot.get_guild(self.guild)
       role = discord.utils.get(guild.roles, id=self.EventRole)
       if role is None:
           await ctx.send("Role not found on this server!")
@@ -217,5 +209,31 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       message = await ctx.send(embed=embed)
       for emoji in emojis:
         await message.add_reaction(emoji)
+    @commands.command(brief="DMs everyone with the <@&952907898206441532> Role",help="",description="Running this command will message **Everyone** with the <@&952907898206441532>")
+    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
+    async def StartEvent(self,ctx):
+      with open("Data.json","r") as f:
+        Data = json.load(f)
+      guild = self.bot.get_guild(self.guild)
+      role = discord.utils.get(guild.roles, id=self.EventRole)
+      if role is None:
+          await ctx.send("Role not found on this server!")
+          return
+      empty = True
+      for member in guild.members:
+          if role in member.roles:
+              await ctx.send(f"Removed {role.mention} from {member.name}")
+              embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
+              embed.set_thumbnail(url="https://assets.vrchat.com/www/brand/vrchat-logo-white-transparent-crop-background.png")
+              embed.set_image(url="https://media.discordapp.net/attachments/943888861069709383/952670455217659924/VRChat_1920x1080_2022-03-13_20-41-09.979.png?width=960&height=540")
+              try:
+                await member.send(embed=embed)
+              except:
+                ctx.send(f"{member.mention} dose not have their dms open and will not receive this an invite")
+              empty = False
+      if empty:
+          await ctx.send(f"Nobody has the role {role.mention}")
+      with open("Data.json","w") as f:
+        json.dump(Data,f,indent=4)
 async def setup(bot):
   await bot.add_cog(Events(bot))
