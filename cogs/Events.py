@@ -26,7 +26,9 @@ class MyView(View):
       json.dump(Data,f,indent=4)
   
   async def on_error(self,error,item,interaction):
-    await interaction.interaction.channel.send("🔥Oh no the interaction! its Broken D: <@269759748302176256><@632029144196186122>🔥",ephemeral=False)
+    guild = self.bot.get_guild(self.guild)
+    channel = self.bot.get_channel(933389497599688704)
+    await guild.channel.send("🔥Oh no the interaction! its Broken D: <@269759748302176256><@632029144196186122>🔥",ephemeral=False)
     raise error
 
 #---------------------------------------------------------------------------------------------------------------------------#
@@ -160,7 +162,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           await ctx.send(f"Nobody has the role {role.mention}")
         
 
-    @commands.command(brief="Removes the <@&952907898206441532> Role from Everyone",help="",description="Running this command will remove the <@&952907898206441532> role from **Everyone** on the server")
+    @commands.command(brief="Removes the <@&952907898206441532> Role from Everyone",help="<Link/Leave Empty>",description="Running this command will remove the <@&952907898206441532> role from **Everyone** on the server")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def EndEvent(self,ctx):
       await ctx.message.delete(delay=1)
@@ -211,18 +213,20 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
         await message.add_reaction(emoji)
     @commands.command(brief="DMs everyone with the <@&952907898206441532> Role",help="",description="Running this command will message **Everyone** with the <@&952907898206441532>")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def StartEvent(self,ctx):
+    async def StartEvent(self,ctx,link:str=None):
       with open("Data.json","r") as f:
         Data = json.load(f)
       guild = self.bot.get_guild(self.guild)
       role = discord.utils.get(guild.roles, id=self.EventRole)
+      if link!=None:
+        Data['vrclink'] = link
       if role is None:
           await ctx.send("Role not found on this server!")
           return
       empty = True
       for member in guild.members:
           if role in member.roles:
-              await ctx.send(f"Removed {role.mention} from {member.name}")
+              await ctx.send(f"Sent A Dm To {member.name}")
               embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
               embed.set_thumbnail(url="https://assets.vrchat.com/www/brand/vrchat-logo-white-transparent-crop-background.png")
               embed.set_image(url="https://media.discordapp.net/attachments/943888861069709383/952670455217659924/VRChat_1920x1080_2022-03-13_20-41-09.979.png?width=960&height=540")
