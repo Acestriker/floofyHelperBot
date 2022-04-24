@@ -21,84 +21,108 @@ class ModButtons(View):
     async def Submit_callback(self,button,interaction):
         guild =self.bot.get_guild(self.guild)
         member = guild.get_member(self.user.id)
-        role = discord.utils.get(guild.roles, id=944776799974461511)
-        await member.remove_roles(role)
-        role = discord.utils.get(guild.roles, id=943895260612919317)
-        await member.add_roles(role)
-        embed=discord.Embed(title=f"Application Approved! <a:eeveeDance:945327984196337714>", description=f"Thank you for your responses. Here's a few things to enjoy in our server!\n> <:zz_orangeDash:944011897290764350> Head to <#943891320802529330> to get your roles sorted\n> <:zz_yellowDash:944011897290780732> Any announcements will be posted in <#943887232304037948>\n> <:zz_greenDash:944011897227862097> We have occasional giveaways and events in <#943888861069709383>\n> <:zz_blueDash:944011896640667719> There is a starboard here - <#943983948449583104>, If you like someone's post, react with a ⭐ to their post, if three people react to the post, it's placed in the starboard!", color=0x00ff00)
-        embed.set_author(name="Approved!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
-        await interaction.response.send_message("User Approved!",ephemeral=True)
-        await self.user.send(embed=embed)
-        embeds = interaction.message.embeds
-        for embed in embeds:
-            embed.to_dict()
-        embed.color = 0x00ff00
-        embed.title = f"{embed.title} (Approved)"
-        embed.add_field(name="Accepted By: ", value=f"{interaction.user.mention}", inline=False)
-        view = View()
-        await interaction.message.edit(content="",view=view,embed=embed)
-        channel = guild.get_channel(self.welocme)
-        img = Image.open("./Assets/Banner.png")
-        img = img.convert("RGBA")
-        font =ImageFont.truetype("./Assets/whitneybold.otf",70) 
-        Asset = self.user.avatar
-        Avatar = BytesIO(await Asset.read())
-        pfp = Image.open(Avatar)
-        pfp = pfp.resize((427,427))
-        mask = Image.open('./Assets/Mask.png').convert('L')
-        pfpBack = Image.open("./Assets/BG.png")
-        pfpBack= pfpBack.convert("RGBA")
-        pfp = pfp.convert("RGBA")
-        pfp = Image.composite(pfp,pfpBack, mask)
-        img.paste(pfp, (117,90), pfp)
-        draw = ImageDraw.Draw(img)
-        W = 1350
-        txt = f"Welcome {self.user.name}#{self.user.discriminator} to Ace's Abode!"
-        txt = textwrap.wrap(txt, width=40)
-        txt.append(f"This server now has {len(guild.members)} members.")
-        current_h, pad=300, 80
-        LineNo = round(len(txt)/2)
-        for i in range(0,LineNo):
-            current_h -=pad
-        for line in txt:
-            w, h = draw.textsize(line, font=font)
-            draw.text((((W - w) / 2)+600, current_h), line, font=font)
-            current_h += pad
-        img.save("./Assets/Welcome.png")
-        await channel.send(file=discord.File("./Assets/Welcome.png"))
-        channel = guild.get_channel(self.general)
-        await channel.send(f"Everyone, welcome {self.user.mention} to the server! We hope you enjoy your stay!")
-        with open("Users.json","r") as f:
-                Data = json.load(f)
-        print(Data[f"{self.user.id}"]["age"])
-        if Data[f"{self.user.id}"]["age"] == "18+":
-            role = discord.utils.get(guild.roles, id=966429116167487548)
+        if member is not None:
+            role = discord.utils.get(guild.roles, id=944776799974461511)
+            await member.remove_roles(role)
+            role = discord.utils.get(guild.roles, id=943895260612919317)
             await member.add_roles(role)
-        del Data[f"{self.user.id}"]
-        with open("Users.json","w") as f:
-            json.dump(Data,f)
 
+            embed=discord.Embed(title=f"Application Approved! <a:eeveeDance:945327984196337714>", description=f"Thank you for your responses. Here's a few things to enjoy in our server!\n> <:zz_orangeDash:944011897290764350> Head to <#943891320802529330> to get your roles sorted\n> <:zz_yellowDash:944011897290780732> Any announcements will be posted in <#943887232304037948>\n> <:zz_greenDash:944011897227862097> We have occasional giveaways and events in <#943888861069709383>\n> <:zz_blueDash:944011896640667719> There is a starboard here - <#943983948449583104>, If you like someone's post, react with a ⭐ to their post, if three people react to the post, it's placed in the starboard!", color=0x00ff00)
+            embed.set_author(name="Approved!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
+            await interaction.response.send_message("User Approved!",ephemeral=True)
+            await self.user.send(embed=embed)
+
+            embeds = interaction.message.embeds
+            for embed in embeds:
+                embed.to_dict()
+            embed.color = 0x00ff00
+            embed.title = f"{embed.title} (Approved)"
+            embed.add_field(name="Accepted by: ", value=f"{interaction.user.mention}", inline=False)
+            view = View()
+            await interaction.message.edit(content="",view=view,embed=embed)
+
+            channel = guild.get_channel(self.welocme)
+            img = Image.open("./Assets/Banner.png")
+            img = img.convert("RGBA")
+            font =ImageFont.truetype("./Assets/whitneybold.otf",70) 
+            Asset = self.user.avatar
+            Avatar = BytesIO(await Asset.read())
+            pfp = Image.open(Avatar)
+            pfp = pfp.resize((427,427))
+            mask = Image.open('./Assets/Mask.png').convert('L')
+            pfpBack = Image.open("./Assets/BG.png")
+            pfpBack= pfpBack.convert("RGBA")
+            pfp = pfp.convert("RGBA")
+            pfp = Image.composite(pfp,pfpBack, mask)
+            img.paste(pfp, (117,90), pfp)
+            draw = ImageDraw.Draw(img)
+            W = 1350
+            txt = f"Welcome {self.user.name}#{self.user.discriminator} to Ace's Abode!"
+            txt = textwrap.wrap(txt, width=40)
+            txt.append(f"This server now has {len(guild.members)} members.")
+            current_h, pad=300, 80
+            LineNo = round(len(txt)/2)
+            for i in range(0,LineNo):
+                current_h -=pad
+            for line in txt:
+                w, h = draw.textsize(line, font=font)
+                draw.text((((W - w) / 2)+600, current_h), line, font=font)
+                current_h += pad
+            img.save("./Assets/Welcome.png")
+            await channel.send(file=discord.File("./Assets/Welcome.png"))
+            channel = guild.get_channel(self.general)
+            await channel.send(f"Everyone, welcome {self.user.mention} to the server! We hope you enjoy your stay!")
+            with open("Users.json","r") as f:
+                    Data = json.load(f)
+            print(Data[f"{self.user.id}"]["age"])
+            if Data[f"{self.user.id}"]["age"] == "18+":
+                role = discord.utils.get(guild.roles, id=966429116167487548)
+                await member.add_roles(role)
+            del Data[f"{self.user.id}"]
+            with open("Users.json","w") as f:
+                json.dump(Data,f)
+        else:
+            embeds = interaction.message.embeds
+            for embed in embeds:
+                embed.to_dict()
+            embed.color = 0x000000
+            embed.title = f"{embed.title} (User Left)"
+            embed.add_field(name="Attempted approval by:", value=f"{interaction.user.mention}", inline=False)
+            view = View()
+            await interaction.message.edit(content="",view=view,embed=embed)
 
     @discord.ui.button(label = "Deny",style=4)
     async def Button_callback(self,button,interaction):
-        def check(m):
-            return m.author == interaction.user
-        await interaction.response.send_message("Send a message to add a reason",ephemeral=True)
-        msg = await self.bot.wait_for('message', check=check)
-        embed=discord.Embed(title=f"Application Rejected <:pensiveBread:945492405778530335>", description=f"Your application  was rejected for the following reason: {msg.content}\nTo re-apply, click the button below.", color=0xff0000)
-        embed.set_author(name="Rejected :(", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
-        view = VerifecationStart(interaction)
-        await self.user.send(embed=embed,view=view)
-        await msg.delete(delay=1)
-        embeds = interaction.message.embeds
-        for embed in embeds:
-            embed.to_dict()
-        embed.color = 0xff0000
-        embed.title = f"{embed.title} (Rejected)"
-        embed.add_field(name="Rejected by: ", value=f"{interaction.user.mention}", inline=False)
-        embed.add_field(name="Rejected reason: ", value=msg.content, inline=False)
-        view = View()
-        await interaction.message.edit(content="",view=view,embed=embed)
+        guild =self.bot.get_guild(self.guild)
+        member = guild.get_member(self.user.id)
+        if member is not None:
+            def check(m):
+                return m.author == interaction.user
+            await interaction.response.send_message("Send a message to add a reason",ephemeral=True)
+            msg = await self.bot.wait_for('message', check=check)
+            embed=discord.Embed(title=f"Application Rejected <:pensiveBread:945492405778530335>", description=f"Your application  was rejected for the following reason: {msg.content}\nTo re-apply, click the button below.", color=0xff0000)
+            embed.set_author(name="Rejected :(", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
+            view = VerifecationStart(interaction)
+            await self.user.send(embed=embed,view=view)
+            await msg.delete(delay=1)
+            embeds = interaction.message.embeds
+            for embed in embeds:
+                embed.to_dict()
+            embed.color = 0xff0000
+            embed.title = f"{embed.title} (Rejected)"
+            embed.add_field(name="Rejected by: ", value=f"{interaction.user.mention}", inline=False)
+            embed.add_field(name="Rejected reason: ", value=msg.content, inline=False)
+            view = View()
+            await interaction.message.edit(content="",view=view,embed=embed)
+        else:
+            embeds = interaction.message.embeds
+            for embed in embeds:
+                embed.to_dict()
+            embed.color = 0x000000
+            embed.title = f"{embed.title} (User Left)"
+            view = View()
+            embed.add_field(name="Attempted denial by:", value=f"{interaction.user.mention}", inline=False)
+            await interaction.message.edit(content="",view=view,embed=embed)
     async def on_error(self,error,item,interaction):
         raise error
 
