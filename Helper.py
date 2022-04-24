@@ -1,7 +1,4 @@
-from distutils.log import error
 import os
-from pydoc import describe
-from turtle import delay
 import discord
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound

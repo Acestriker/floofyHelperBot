@@ -2,8 +2,7 @@
 #DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
 from distutils.log import error
 import os
-from turtle import delay
-#import cronitor
+import cronitor
 import discord
 from discord.ext import commands,tasks
 from discord.ext.commands import CommandNotFound
@@ -18,8 +17,8 @@ def isAce(ctx):
 	return ctx.author.id==632029144196186122
 initial_extensions = STARTUP
 intents = discord.Intents().all()
-#cronitor.api_key = '27672841ce794a86b38064638b5a48f5'
-#monitor = cronitor.Monitor('x5MIGv')
+cronitor.api_key = '27672841ce794a86b38064638b5a48f5'
+monitor = cronitor.Monitor('x5MIGv')
 #---------------------------------------------------------------------------------------------------------------------------#
 
 #---------------------------------------------------------------------------------------------------------------------------#
@@ -28,29 +27,43 @@ bot = commands.Bot(command_prefix =PREFIX,help_command=Helper(),intents=intents,
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
-    await bot.change_presence(activity=discord.Game(name="~help | Ace's Abode"))
+    #await bot.change_presence(activity=discord.Game(name="~help | Ace's Abode"))
+    Ping.start()
     for ext in initial_extensions:
         await bot.load_extension(ext)
-    #Ping.start()
+        if ext == "cogs.Events":
+            from cogs.Events import MyView
+            import json
+            with open("Data.json","r") as f:
+                Data = json.load(f)
+            guild = bot.get_guild(943404593105231882)
+            msg= Data["LastEvent"]
+            for channel in guild.text_channels:
+                try:
+                    msg = await channel.fetch_message(msg)
+                except:
+                    pass
+                else:
+                    print("fixed last Event message")
+                    view = MyView(bot)
+                    await msg.edit(view=view)
+                    break
 
 @bot.event
 async def on_command_error(ctx, error):
 	if isinstance(error, CommandNotFound):
-		await ctx.message.delete(delay=1)
+		await ctx.message.delete()
 		embed=discord.Embed(title="Command Error ☹", color=0xff4d00)
 		embed.add_field(name="Unknown Command", value="Invalid Command Entered for a list of commands do ~help", inline=False)
 		message = await ctx.send(embed=embed)
 		await message.delete(delay=10)
 		return
 	if isinstance(error, commands.MissingRequiredArgument):
-		await ctx.message.delete(delay=1)
+		await ctx.message.delete()
 		embed=discord.Embed(title="Command Error ☹", color=0xff4d00)
 		embed.add_field(name="Missing Arguments", value="make sure you using the command correctly", inline=False)
 		message = await ctx.send(embed=embed)
 		await message.delete(delay=10)
-		return
-	if isinstance(error,discord.NotFound):
-		print("swwoop")
 		return
 	raise error
 
@@ -59,7 +72,7 @@ async def on_command_error(ctx, error):
 @bot.command()
 @commands.check_any(commands.check(isDoshi),commands.check(isAce))
 async def load(ctx,extension):
-		await ctx.message.delete(delay=1)
+		await ctx.message.delete()
 		try:
 			await bot.load_extension(f"cogs.{extension}")	
 		except:
@@ -72,7 +85,7 @@ async def load(ctx,extension):
 @bot.command()
 @commands.check_any(commands.check(isDoshi),commands.check(isAce))
 async def unload(ctx,extension):
-		await ctx.message.delete(delay=1)
+		await ctx.message.delete()
 		try:
 			await bot.unload_extension(f"cogs.{extension}")
 		except:
@@ -85,7 +98,7 @@ async def unload(ctx,extension):
 @bot.command()
 @commands.check_any(commands.check(isDoshi),commands.check(isAce))
 async def reload(ctx,extension):
-		await ctx.message.delete(delay=1)
+		await ctx.message.delete()
 		try:
 			await bot.unload_extension(f"cogs.{extension}")
 			await bot.load_extension(f"cogs.{extension}")
@@ -108,8 +121,10 @@ async def ListAll(ctx):
 	await ctx.send(extentions)
 @tasks.loop(seconds=30)
 async def Ping():    
-    #monitor.ping(message="Alive!")
-    print("Ping Sent")
-
+    monitor.ping(message="Alive!")
+    
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f'Ping is: {round(bot.latency*1000)}ms')
 #---------------------------------------------------------------------------------------------------------------------------#		
 bot.run(TOKEN)

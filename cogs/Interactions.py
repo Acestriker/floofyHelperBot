@@ -24,13 +24,19 @@ class Interactions(commands.Cog):
             embed.add_field(name="Emoji Requests", value="access to <#944280717255381013> to suggest emojis to add to the server!",inline=False)
             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/944096582851231804/956574419793362984/IMG_1458.png")
             await message.author.send(embed=embed)
-        if "gm" in message.content.lower() and now - Data["Last"]>1800:
+        if "gm" in message.content.lower() and now - Data["Last"]>1800 and message.author.id != 953794936736727110 and message.reference == None:
             async with message.channel.typing():
                await asyncio.sleep(1)
                await message.channel.send(random.choice(Data["GmRespones"]))
             Data["Last"] = now
         with open("messages.json","w") as f:
             json.dump(Data,f)
+    @commands.command()
+    async def manual(self,ctx,Channel:int,*,args):
+        await ctx.message.delete(delay=1)
+        channel = self.bot.get_channel(Channel)
+        await channel.send(args)
+
 
 async def setup(bot):
   await bot.add_cog(Interactions(bot))

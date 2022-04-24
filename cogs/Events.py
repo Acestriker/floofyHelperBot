@@ -2,6 +2,41 @@ import discord
 from discord.ui import Button, View
 from discord.ext import commands,tasks
 import json
+class LateEvent(View):
+  def __init__(self,bot):
+    super().__init__(timeout=None)
+    self.bot = bot
+    self.EventRole=952907898206441532 # < < < change to Your Wanted Role 
+  
+  #---------------------------------------------------------------------------------------------------------------------------#
+  @discord.ui.button(label = "Apply",style=1,custom_id="Apply",emoji="🎉")
+  async def Button_callback(self, button, interaction):
+    with open("Data.json","r") as f:
+      Data = json.load(f)
+    if interaction.user.id in Data["EventIDs"]:
+      await interaction.response.send_message(f"You are already registered",ephemeral=True)
+    else:
+      Data["EventUsers"][interaction.user.name] = interaction.user.id
+      Data["EventIDs"].append(interaction.user.id)
+      role = discord.utils.get(interaction.user.guild.roles, id=self.EventRole)
+      await interaction.user.add_roles(role)
+      await interaction.response.send_message(f"You have been registered, you can now join <#952674696497860668>! Check dms for invite code",ephemeral=True)
+      embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
+      embed.set_thumbnail(url="https://assets.vrchat.com/www/brand/vrchat-logo-white-transparent-crop-background.png")
+      embed.set_image(url="https://media.discordapp.net/attachments/943888861069709383/952670455217659924/VRChat_1920x1080_2022-03-13_20-41-09.979.png?width=960&height=540")
+      try:
+        await interaction.user.send(embed=embed)
+      except:
+        pass
+    with open("Data.json","w") as f:
+      json.dump(Data,f,indent=4)
+  
+  async def on_error(self,error,item,interaction):
+    guild = self.bot.get_guild(943404593105231882)
+    channel = self.bot.get_channel(933389497599688704)
+    await guild.channel.send("🔥Oh no the interaction! its Broken D: <@269759748302176256><@632029144196186122>🔥",ephemeral=False)
+    raise error
+
 
 class MyView(View):
   def __init__(self,bot):
@@ -26,7 +61,7 @@ class MyView(View):
       json.dump(Data,f,indent=4)
   
   async def on_error(self,error,item,interaction):
-    guild = self.bot.get_guild(self.guild)
+    guild = self.bot.get_guild(943404593105231882)
     channel = self.bot.get_channel(933389497599688704)
     await guild.channel.send("🔥Oh no the interaction! its Broken D: <@269759748302176256><@632029144196186122>🔥",ephemeral=False)
     raise error
@@ -40,6 +75,62 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
         self.EventChannel = 952674696497860668 # < < < change to Your Wanted Role
         self.EventAttendeeRole = 952668569068511323 # < < < change to Your Wanted Role
         self.EventRole=952907898206441532
+    @commands.Cog.listener()
+    async def on_reaction_add(self,reaction,user):
+      with open("messages.json","r") as f:
+        Data = json.load(f)
+      if user.id != self.me:
+        try:
+          Polls =Data["Polls"][f"{reaction.message.id}"]
+        except:
+          pass
+        else:
+          if reaction.emoji in ["🔴","🟠","🟡","🟢","🔵","🟣"]:
+            try:
+              lastReactions=Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"]
+            except:
+              if reaction.emoji == "🔴":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 1
+              elif reaction.emoji == "🟠":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 2
+              elif reaction.emoji == "🟡":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 3
+              elif reaction.emoji == "🟢":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 4
+              elif reaction.emoji == "🔵":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 5
+              elif reaction.emoji == "🟣":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 6
+              with open("messages.json","w") as f:
+                json.dump(Data,f,indent=4)
+            else:
+              if lastReactions == 1:
+                lastReactions ="🔴"
+              elif lastReactions == 2:
+                lastReactions ="🟠"
+              elif lastReactions == 3:
+                lastReactions ="🟡"
+              elif lastReactions == 4:
+                lastReactions ="🟢"
+              elif lastReactions == 5:
+                lastReactions ="🔵"
+              elif lastReactions == 6:
+                lastReactions ="🟣"
+              await reaction.message.remove_reaction(lastReactions, user)
+              if reaction.emoji == "🔴":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 1
+              elif reaction.emoji == "🟠":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 2
+              elif reaction.emoji == "🟡":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 3
+              elif reaction.emoji == "🟢":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 4
+              elif reaction.emoji == "🔵":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 5
+              elif reaction.emoji == "🟣":
+                Data["Polls"][f"{reaction.message.id}"]["Reactions"][f"{user.id}"] = 6
+              with open("messages.json","w") as f:
+                json.dump(Data,f,indent=4)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self,member, before, after):
@@ -69,7 +160,18 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           await member.add_roles(role)
         with open("Data.json","w") as f:
           json.dump(Data,f,indent=4)
-
+      elif after.channel and before.channel and before.channel.id == self.EventChannel:
+        import time
+        now = int(time.time())
+        with open("Data.json","r") as f:
+          Data = json.load(f)
+        Then=Data["timeCodes"][member.name]
+        del Data["timeCodes"][member.name]
+        role = discord.utils.get(member.guild.roles, id=self.EventAttendeeRole)
+        if (now-Then)>= 600 and role not in member.roles:
+          await member.add_roles(role)
+        with open("Data.json","w") as f:
+          json.dump(Data,f,indent=4)
 #---------------------------------------------------------------------------------------------------------------------------#
 
     @commands.command(brief="Disables The Button on Event Post",help="<Message ID>",description="lets you disable the button attached to an Event Embed")
@@ -127,15 +229,16 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
         Data["vrclink"]=None
       else:
         Data["vrclink"]=Link
-      Data["EventUnix"] = unix  
-      with open("Data.json","w") as f:
-        json.dump(Data,f,indent=4)
+      Data["EventUnix"] = unix 
       embed=discord.Embed(title="Event", description=args, color=0x00ffee)
       embed.set_thumbnail(url="https://media.discordapp.net/attachments/944096582851231804/954098014937575484/sfegrge.png?width=351&height=203")
       embed.add_field(name="Click The Button", value="Bellow To Apply", inline=False)
       embed.add_field(name="Event Start Time:",value=f"<t:{unix}:R>",inline=False)
       view = MyView(ctx)
-      await ctx.send(view=view,embed=embed)
+      message = await ctx.send(view=view,embed=embed)
+      Data["LastEvent"] = message.id
+      with open("Data.json","w") as f:
+        json.dump(Data,f,indent=4)
       await ctx.message.delete(delay=1)
 
     @commands.command(brief="Removes the <@&952668569068511323> Role from Everyone",help="",description="Running this command will remove the <@&952668569068511323> role from **Everyone** on the server")
@@ -162,7 +265,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           await ctx.send(f"Nobody has the role {role.mention}")
         
 
-    @commands.command(brief="Removes the <@&952907898206441532> Role from Everyone",help="<Link/Leave Empty>",description="Running this command will remove the <@&952907898206441532> role from **Everyone** on the server")
+    @commands.command(brief="Removes the <@&952907898206441532> Role from Everyone",help="",description="Running this command will remove the <@&952907898206441532> role from **Everyone** on the server")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def EndEvent(self,ctx):
       await ctx.message.delete(delay=1)
@@ -170,6 +273,7 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           Data = json.load(f)
       for i in range(len(Data["TempRoles"])):
           del Data["TempRoles"][i]
+      Data["EventIDs"] = []
       with open("Data.json","w") as f:
           json.dump(Data,f,indent=4)
       guild = self.bot.get_guild(self.guild)
@@ -211,7 +315,13 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       message = await ctx.send(embed=embed)
       for emoji in emojis:
         await message.add_reaction(emoji)
-    @commands.command(brief="DMs everyone with the <@&952907898206441532> Role",help="",description="Running this command will message **Everyone** with the <@&952907898206441532>")
+      with open("messages.json","r") as f:
+        Data = json.load(f)
+      Data["Polls"][f"{message.id}"]={"Reactions":{}}
+      with open("messages.json","w") as f:
+        json.dump(Data,f,indent=4)
+      await ctx.message.delete(delay=1)
+    @commands.command(brief="DMs everyone with the <@&952907898206441532> Role",help="<Link/Leave Empty>",description="Running this command will message **Everyone** with the <@&952907898206441532>")
     @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
     async def StartEvent(self,ctx,link:str=None):
       with open("Data.json","r") as f:
@@ -239,5 +349,22 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           await ctx.send(f"Nobody has the role {role.mention}")
       with open("Data.json","w") as f:
         json.dump(Data,f,indent=4)
+
+      found = False
+      for channel in ctx.guild.text_channels:
+        try:
+          msg = await channel.fetch_message(Data['LastEvent'])
+        except:
+          found = False
+        else:
+            await ctx.message.delete(delay=1)
+            view = LateEvent(ctx)
+            await msg.edit(view=view)
+            await ctx.send(f"message was found and Changed in <#{channel.id}>")
+            found = True
+            break
+      if found == False:
+        await ctx.send("message could not be Found In any Channel :/")
+
 async def setup(bot):
   await bot.add_cog(Events(bot))
