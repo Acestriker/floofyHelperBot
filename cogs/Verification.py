@@ -39,7 +39,7 @@ class ModButtons(View):
             embed.title = f"{embed.title} (Approved)"
             embed.add_field(name="Accepted by: ", value=f"{interaction.user.mention}", inline=False)
             view = View()
-            await interaction.message.edit(content="",view=view,embed=embed)
+            await interaction.message.edit(content=f"{self.user.mention}",view=view,embed=embed)
 
             channel = guild.get_channel(self.welocme)
             img = Image.open("./Assets/Banner.png")
@@ -113,7 +113,7 @@ class ModButtons(View):
             embed.add_field(name="Rejected by: ", value=f"{interaction.user.mention}", inline=False)
             embed.add_field(name="Rejected reason: ", value=msg.content, inline=False)
             view = View()
-            await interaction.message.edit(content="",view=view,embed=embed)
+            await interaction.message.edit(content=f"{self.user.mention}",view=view,embed=embed)
         else:
             embeds = interaction.message.embeds
             for embed in embeds:
