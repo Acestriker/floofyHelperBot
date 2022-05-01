@@ -28,17 +28,17 @@ from discord.ext.commands import CommandNotFound
 
 
 # Monitor Connector
-#cronitor.api_key = CONTAINERAPIKEY
-#monitor = cronitor.Monitor(MONITORTOKEN)
+cronitor.api_key = CONTAINERAPIKEY
+monitor = cronitor.Monitor(MONITORTOKEN)
 
 # Main Bot Class
 class Mybot(commands.Bot):
 	def __init__(self):
-		super().__init__(command_prefix=PREFIX,intents=discord.Intents.all(),application_id=APPID,case_insensitive=True)
+		super().__init__(command_prefix=PREFIX,intents=discord.Intents.all(),help_command=None,application_id=APPID,case_insensitive=True)
 		self.initial_extensions = STARTUP
 
 	async def on_ready(self):
-		#self.Ping.start()
+		self.Ping.start()
 		await self.load_extension("cogs.onStart")
 		for ext in self.initial_extensions:
 			await self.load_extension(ext)
