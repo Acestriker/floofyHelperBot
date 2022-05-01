@@ -1,130 +1,80 @@
-#Version 1.0 | By DoshiDog | https://github.com/DoshiDog
-#DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
-from distutils.log import error
+"""
+Code for the floofy Helper Bot for > https://discord.gg/4beans
+You can find me on github > https://github.com/DoshiDog
+The Repositorie for this project > https://github.com/Acestriker/floofyHelperBot
+the modules required for this project can be found in the requirements.txt file
+                                                          ,,          ,,                                   
+`7MMMMMYp,                `7MMMMMYb.                    `7MM          db  `7MMMMMYb.                       
+  MM    Yb                  MM    `Yb.                    MM                MM    `Yb.                     
+  MM    dP `7M'   `MF'      MM     `Mb  ,pW"Wq.  ,pP"Ybd  MMpMMMb.  `7MM    MM     `Mb  ,pW"Wq.   .P"Ybmmm 
+  MMWWWbg.   VA   ,V        MM      MM 6W'   `Wb 8I   `"  MM    MM    MM    MM      MM 6W'   `Wb :MI  I8   
+  MM    `Y    VA ,V         MM     ,MP 8M     M8 `YMMMa.  MM    MM    MM    MM     ,MP 8M     M8  WmmmP"   
+  MM    ,9     VVV          MM    ,dP' YA.   ,A9 L.   I8  MM    MM    MM    MM    ,dP' YA.   ,A9 8M        
+.JMMmmmd9      ,V         .JMMmmmdP'    `Ybmd9'  M9mmmP'.JMML  JMML..JMML..JMMmmmdP'    `Ybmd9'   YMMMMMb  
+              ,V                                                                                 6'     dP 
+           OOb"                                                                                  Ybmmmd'   
+DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
+"""
+
+
+# Imports
 import os
 #import cronitor
 import discord
 from discord.ext import commands,tasks
-from discord.ext.commands import CommandNotFound
+from discord import app_commands
 from Config import *
-from Helper import Helper
+from discord.ext.commands import CommandNotFound
 
-#---------------------------------------------------------------------------------------------------------------------------#
 
-def isDoshi(ctx):
-	return ctx.author.id ==269759748302176256
-def isAce(ctx):
-	return ctx.author.id==632029144196186122
-initial_extensions = STARTUP
-intents = discord.Intents().all()
-#cronitor.api_key = '27672841ce794a86b38064638b5a48f5'
-#monitor = cronitor.Monitor('x5MIGv')
-#---------------------------------------------------------------------------------------------------------------------------#
+# Monitor Connector
+#cronitor.api_key = CONTAINERAPIKEY
+#monitor = cronitor.Monitor(MONITORTOKEN)
 
-#---------------------------------------------------------------------------------------------------------------------------#
-bot = commands.Bot(command_prefix =PREFIX,help_command=Helper(),intents=intents,case_insensitive=True)
-#---------------------------------------------------------------------------------------------------------------------------#
-@bot.event
-async def on_ready():
-    print(f'{bot.user} has connected to Discord!')
-    #await bot.change_presence(activity=discord.Game(name="~help | Ace's Abode"))
-    #Ping.start()
-    for ext in initial_extensions:
-        await bot.load_extension(ext)
-        if ext == "cogs.Events":
-            from cogs.Events import MyView
-            import json
-            with open("Data.json","r") as f:
-                Data = json.load(f)
-            guild = bot.get_guild(943404593105231882)
-            msg= Data["LastEvent"]
-            for channel in guild.text_channels:
-                try:
-                    msg = await channel.fetch_message(msg)
-                except:
-                    pass
-                else:
-                    print("fixed last Event message")
-                    view = MyView(bot)
-                    await msg.edit(view=view)
-                    break
+# Main Bot Class
+class Mybot(commands.Bot):
+	def __init__(self):
+		super().__init__(command_prefix=PREFIX,intents=discord.Intents.all(),application_id=APPID,case_insensitive=True)
+		self.initial_extensions = STARTUP
 
-@bot.event
-async def on_command_error(ctx, error):
-	if isinstance(error, CommandNotFound):
-		await ctx.message.delete()
-		embed=discord.Embed(title="Command Error ☹", color=0xff4d00)
-		embed.add_field(name="Unknown Command", value="Invalid Command Entered for a list of commands do ~help", inline=False)
-		message = await ctx.send(embed=embed)
-		await message.delete(delay=10)
-		return
-	if isinstance(error, commands.MissingRequiredArgument):
-		await ctx.message.delete()
-		embed=discord.Embed(title="Command Error ☹", color=0xff4d00)
-		embed.add_field(name="Missing Arguments", value="make sure you using the command correctly", inline=False)
-		message = await ctx.send(embed=embed)
-		await message.delete(delay=10)
-		return
-	raise error
+	async def on_ready(self):
+		#self.Ping.start()
+		await self.load_extension("cogs.onStart")
+		for ext in self.initial_extensions:
+			await self.load_extension(ext)
+			if ext == "cogs.Events":
+				from cogs.Events import MyView
+				import json
+				with open("Data.json","r") as f:
+					Data = json.load(f)
+				guild = bot.get_guild(943404593105231882)
+				msg= Data["LastEvent"]
+				for channel in guild.text_channels:
+					try:
+						msg = await channel.fetch_message(msg)
+					except:
+						pass
+					else:
+						print("fixed last Event message")
+						view = MyView(bot)
+						await msg.edit(view=view)
+						break
+			if ext == "cogs.AI":
+				from cogs.AI import ChatButtons
+				guild = bot.get_guild(943404593105231882)
+				channel = guild.get_channel(968225581462335488)
+				msg = await channel.fetch_message(969271592133754890)
+				view = ChatButtons(bot)
+				await msg.edit(view=view)
+				print("fixed Chat bot message")
+		await bot.tree.sync(guild=discord.Object(id=943404593105231882))
+		print(f'{self.user} has connected to Discord!')
 
-#---------------------------------------------------------------------------------------------------------------------------#
+	# Monitor ping routine
+	@tasks.loop(seconds=30)
+	async def Ping(self):    
+	    monitor.ping(message="Alive!")
 
-@bot.command()
-@commands.check_any(commands.check(isDoshi),commands.check(isAce))
-async def load(ctx,extension):
-		await ctx.message.delete()
-		try:
-			await bot.load_extension(f"cogs.{extension}")	
-		except:
-			message = await ctx.send(f"Faild to load {extension}")
-			await message.delete(delay=5)
-		else:
-			message = await ctx.send(f"loaded {extension}")		
-			await message.delete(delay=5)
-
-@bot.command()
-@commands.check_any(commands.check(isDoshi),commands.check(isAce))
-async def unload(ctx,extension):
-		await ctx.message.delete()
-		try:
-			await bot.unload_extension(f"cogs.{extension}")
-		except:
-			message = await ctx.send(f"Faild to unload {extension}")
-			await message.delete(delay=5)
-		else:
-			message = await ctx.send(f"unloaded {extension}")
-			await message.delete(delay=5)
-
-@bot.command()
-@commands.check_any(commands.check(isDoshi),commands.check(isAce))
-async def reload(ctx,extension):
-		await ctx.message.delete()
-		try:
-			await bot.unload_extension(f"cogs.{extension}")
-			await bot.load_extension(f"cogs.{extension}")
-		except:
-			message = await ctx.send(f"failed to reload {extension}")
-			await message.delete(delay=5)
-		else:
-			message = await ctx.send(f"reloaded {extension}")
-			await message.delete(delay=5)
-
-#---------------------------------------------------------------------------------------------------------------------------#
-
-@bot.command()
-@commands.check_any(commands.check(isDoshi),commands.check(isAce))
-async def ListAll(ctx):
-	extentions = []
-	for filename in os.listdir('./cogs'):
-		if filename.endswith('.py'):
-			extentions.append(filename)
-	await ctx.send(extentions)
-@tasks.loop(seconds=30)
-async def Ping():    
-    monitor.ping(message="Alive!")
-    
-@bot.command()
-async def ping(ctx):
-    await ctx.send(f'Ping is: {round(bot.latency*1000)}ms')
-#---------------------------------------------------------------------------------------------------------------------------#		
+# Main RunTime
+bot = Mybot()
 bot.run(TOKEN)

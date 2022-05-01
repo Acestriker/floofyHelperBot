@@ -1,4 +1,3 @@
-from email import message
 import os
 import discord
 from discord.ui import Button, View
@@ -17,7 +16,7 @@ class ModButtons(View):
         self.welocme = 943891195128578069
         self.general = 943404593105231885
 
-    @discord.ui.button(label = "Accept",style=3)
+    @discord.ui.button(label = "Accept",style=3,emoji="✅")
     async def Submit_callback(self,button,interaction):
         guild =self.bot.get_guild(self.guild)
         member = guild.get_member(self.user.id)
@@ -91,7 +90,7 @@ class ModButtons(View):
             view = View()
             await interaction.message.edit(content="",view=view,embed=embed)
 
-    @discord.ui.button(label = "Deny",style=4)
+    @discord.ui.button(label = "Deny",style=4,emoji="✖️")
     async def Button_callback(self,button,interaction):
         guild =self.bot.get_guild(self.guild)
         member = guild.get_member(self.user.id)
@@ -123,6 +122,52 @@ class ModButtons(View):
             view = View()
             embed.add_field(name="Attempted denial by:", value=f"{interaction.user.mention}", inline=False)
             await interaction.message.edit(content="",view=view,embed=embed)
+    
+
+    @discord.ui.button(label = "Kick",style=4)
+    async def kick_callback(self,button,interaction):
+        def check(m):
+            return m.author == interaction.user
+        await interaction.response.send_message("Send a message to add a reason",ephemeral=True)
+        msg = await self.bot.wait_for('message', check=check)
+        embeds = interaction.message.embeds
+        guild =self.bot.get_guild(self.guild)
+        embed=discord.Embed(title=f"Application Rejected and you were kicked <a:protoBap:945369282055929866>", description=f" you were Kicked for the following reason: {msg.content}\nTo apeal the ban go to [our ban apeal from](https://dyno.gg/form/8d90fc8).", color=0xff0000)
+        embed.set_author(name="Kicked :(", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")         
+        await self.user.send(embed=embed)
+        await guild.kick(self.user,reason = msg.content)
+        for embed in embeds:
+            embed.to_dict()
+        embed.color = 0xff0000
+        embed.title = f"{embed.title} (Banned)"
+        embed.add_field(name="Rejected by: ", value=f"{interaction.user.mention}", inline=False)
+        embed.add_field(name="kick reason: ", value=msg.content, inline=False)
+        view = View()
+        await interaction.message.edit(content=f"{self.user.mention}",view=view,embed=embed)
+        await msg.delete(delay=1)
+
+    @discord.ui.button(label = "Ban",style=4)
+    async def ban_callback(self,button,interaction):
+        def check(m):
+            return m.author == interaction.user
+        await interaction.response.send_message("Send a message to add a reason",ephemeral=True)
+        msg = await self.bot.wait_for('message', check=check)
+        embeds = interaction.message.embeds
+        guild =self.bot.get_guild(self.guild)
+        embed=discord.Embed(title=f"Application Rejected and you were banned <a:protoBap:945369282055929866>", description=f"Damb your aplication was **that** bad you got banned from it <:foxxoBruh:945475855424057354>?!\n you were banned for the following reason: {msg.content}\nTo apeal the ban go to [our ban apeal from](https://dyno.gg/form/8d90fc8).", color=0xff0000)
+        embed.set_author(name="Banned :(", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")         
+        await self.user.send(embed=embed)
+        await guild.ban(self.user,reason = msg.content)
+        for embed in embeds:
+            embed.to_dict()
+        embed.color = 0xff0000
+        embed.title = f"{embed.title} (Banned)"
+        embed.add_field(name="Rejected by: ", value=f"{interaction.user.mention}", inline=False)
+        embed.add_field(name="Ban reason: ", value=msg.content, inline=False)
+        view = View()
+        await interaction.message.edit(content=f"{self.user.mention}",view=view,embed=embed)
+        await msg.delete(delay=1)
+        
     async def on_error(self,error,item,interaction):
         raise error
 
@@ -150,6 +195,8 @@ class VerifecationFinish(View):
                 Data = json.load(f)
         embed.set_author(name=f"{interaction.user.name}#{interaction.user.discriminator} ({interaction.user.id})", icon_url=f"{interaction.user.avatar}")
         embed.set_thumbnail(url=f"{interaction.user.avatar}")
+        import time
+        embed.add_field(name="accout created", value=f"<t:{round(time.mktime(interaction.user.created_at.timetuple()))}:R>", inline=False)
         embed.add_field(name="Age", value=f"{Data[f'{interaction.user.id}']['age']}", inline=False)
         embed.add_field(name="Why they joined", value=f"{Data[f'{interaction.user.id}']['whyJoin']}", inline=True)
         embed.add_field(name="Tell us about yourself", value=f"{Data[f'{interaction.user.id}']['TellusAboutYou']}", inline=True)

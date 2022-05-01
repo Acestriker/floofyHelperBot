@@ -9,7 +9,6 @@ import random
 class Interactions(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
-        self.me =943873910699618364
     @commands.Cog.listener()
     async def on_message(self,message):
         with open("messages.json","r") as f:

@@ -1,7 +1,11 @@
+from tokenize import Floatnumber
 import discord
+from discord import app_commands
 from discord.ui import Button, View
 from discord.ext import commands,tasks
 import json
+
+from numpy import double
 class LateEvent(View):
   def __init__(self,bot):
     super().__init__(timeout=None)
@@ -61,13 +65,13 @@ class MyView(View):
       json.dump(Data,f,indent=4)
   
   async def on_error(self,error,item,interaction):
-    guild = self.bot.get_guild(943404593105231882)
-    channel = self.bot.get_channel(933389497599688704)
-    await guild.channel.send("🔥Oh no the interaction! its Broken D: <@269759748302176256><@632029144196186122>🔥",ephemeral=False)
+    #guild = self.bot.get_guild(943404593105231882)
+    #channel = guild.get_channel(933389497599688704)
+    #await channel.send("🔥Oh no the interaction! its Broken D: <@269759748302176256><@632029144196186122>🔥")
     raise error
 
 #---------------------------------------------------------------------------------------------------------------------------#
-class Events(commands.Cog,description=":tada: Event Hosting Module"):
+class Events(commands.Cog,app_commands.Group, name="event"):
     def __init__(self,bot):
         self.bot = bot
         self.guild = 943404593105231882 # < < < change to Your Server ID
@@ -75,6 +79,12 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
         self.EventChannel = 952674696497860668 # < < < change to Your Wanted Role
         self.EventAttendeeRole = 952668569068511323 # < < < change to Your Wanted Role
         self.EventRole=952907898206441532
+        super().__init__()
+    def has_any_role(interaction):
+      for id in [953518880100352081,943881682275160124,953523758373679136,949433575525191700]:
+        role = discord.utils.get(interaction.guild.roles, id=id)
+        if role in interaction.user.roles:
+          return True
     @commands.Cog.listener()
     async def on_reaction_add(self,reaction,user):
       with open("messages.json","r") as f:
@@ -174,77 +184,112 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
           json.dump(Data,f,indent=4)
 #---------------------------------------------------------------------------------------------------------------------------#
 
-    @commands.command(brief="Disables The Button on Event Post",help="<Message ID>",description="lets you disable the button attached to an Event Embed")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def Disable(self,ctx,msg:int):
+    @app_commands.command(name="end",description="ends Event")
+    @app_commands.check(has_any_role)
+    async def end(self,interaction):
+      with open("Data.json","r") as f:
+          Data = json.load(f)
       found = False
-      for channel in ctx.guild.text_channels:
+      embed=discord.Embed(title="<a:loading:717856603340013669> Searching for message", color=0xadf3fd)
+      await interaction.response.send_message(embed=embed,ephemeral=True)
+      for channel in interaction.guild.text_channels:
         try:
-          msg = await channel.fetch_message(msg)
+          msg = await channel.fetch_message(Data["LastEvent"])
         except:
           found = False
         else:
-            await ctx.message.delete(delay=1)
-            button = Button(label="Event Over",style=discord.ButtonStyle.red,emoji="☹")
-            async def button_callback(interaction):
-                await interaction.response.send_message("Looks like you missed the event ☹, if you dont want to miss another get the <@&943946711208980602> Role in <#943891320802529330>",ephemeral=True)
-            button.callback = button_callback
+            embed=discord.Embed(title=f"Message was found and disabled",description=f"Found in <#{channel.id}>.", color=0xadf3fd)
+            await interaction.edit_original_message(embed=embed)
+            button = Button(label="Event Over",style=discord.ButtonStyle.red,emoji="☹",disabled=True)
             view = View()
             view.add_item(button)
             await msg.edit(view=view)
-            await ctx.send(f"message was found and Disabled in <#{channel.id}>")
             found = True
             break
       if found == False:
-        await ctx.send("message could not be Found In any Channel :/")
+        embed=discord.Embed(title=f"Message could not be found in any channel :/", color=0xadf3fd)
+        await interaction.edit_original_message(embed=embed,ephemeral=True)
 
-    @commands.command(brief="Repair The Button on Event Post",help="<Message ID>",description="lets you Repair the button attached to an Event Embed")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def Fix(self,ctx,msg:int):
+      embed=discord.Embed(title="<a:loading:717856603340013669> Removing Roles", color=0xadf3fd)
+      await interaction.edit_original_message(embed=embed)
+      for i in range(len(Data["TempRoles"])):
+          del Data["TempRoles"][i]
+      Data["EventIDs"] = []
+      guild = self.bot.get_guild(self.guild)
+      role = discord.utils.get(guild.roles, id=self.EventRole)
+      if role is None:
+          embed=discord.Embed(title=f"Role not found on this server!", color=0xadf3fd)
+          await interaction.edit_original_message(embed=embed)
+          return
+      empty = True
+      has = len(role.members)
+      removed = 0
+      for member in guild.members:
+          if role in member.roles:
+              removed += 1
+              await member.remove_roles(role)
+              empty = False
+      users = f"Removed {role.mention} from {removed}/{has} users."
+      if empty:
+          embed=discord.Embed(title=f"Nobody has the role",description=f"{role.mention}.", color=0xadf3fd)
+          await interaction.edit_original_message(embed=embed)
+      else:
+        embed=discord.Embed(title=f"Role removal",description=users, color=0xadf3fd)
+        await interaction.edit_original_message(embed=embed)
+      with open("Data.json","w") as f:
+          json.dump(Data,f,indent=4)
+
+    @app_commands.command(name="repair",description="Lets you repair the button attached to an event embed")
+    @app_commands.check(has_any_role)
+    async def Fix(self,interaction,msg:str):
       found = False
-      for channel in ctx.guild.text_channels:
+      embed=discord.Embed(title="<a:loading:717856603340013669> Searching for message", color=0xadf3fd)
+      await interaction.response.send_message(embed=embed,ephemeral=True)
+      for channel in interaction.guild.text_channels:
         try:
           msg = await channel.fetch_message(msg)
         except:
           found = False
         else:
-          await ctx.message.delete(delay=1)
-          view = MyView(ctx)
+          view = MyView(self.bot)
           await msg.edit(view=view)
-          await ctx.send(f"message was found and Fixed in <#{channel.id}>")
+          embed=discord.Embed(title=f"message was fixed",description=f"Found in <#{channel.id}>.", color=0xadf3fd)
+          await interaction.edit_original_message(embed=embed)
           found = True
           break
       if found == False:
-        await ctx.send("message could not be Found In any Channel :/")
+        embed=discord.Embed(title="message could not be Found In any Channel :/", color=0xadf3fd)
+        await interaction.edit_original_message(embed=embed)
 
-    @commands.command(brief="Create Event Embed With Button",help="<unix Time Stamp> <link / 'None'> <Event Description>",description="let you create an event message with an interaction button that will send a link to anyone pressing the button and give them an event role")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def Event(self,ctx,unix:int,Link,*,args):
+    @app_commands.command(name="create",description="let you create an event message")
+    @app_commands.check(has_any_role)
+    async def event(self,interaction,unix:int,msg:str,link:str=None):
       if unix == 0:
         import time
         unix = int(time.time())
       with open("Data.json","r") as f:
           Data = json.load(f)
-      if Link == "None" or Link == "none":
-        Data["vrclink"]=None
-      else:
-        Data["vrclink"]=Link
+      Data["vrclink"]=link
       Data["EventUnix"] = unix 
-      embed=discord.Embed(title="Event", description=args, color=0x00ffee)
+      embed=discord.Embed(title="Event", description=msg, color=0x00ffee)
       embed.set_thumbnail(url="https://media.discordapp.net/attachments/944096582851231804/954098014937575484/sfegrge.png?width=351&height=203")
       embed.add_field(name="Click The Button", value="Bellow To Apply", inline=False)
       embed.add_field(name="Event Start Time:",value=f"<t:{unix}:R>",inline=False)
-      view = MyView(ctx)
-      message = await ctx.send(view=view,embed=embed)
+      view = MyView(self.bot)
+      message = await interaction.channel.send(view=view,embed=embed)
       Data["LastEvent"] = message.id
       with open("Data.json","w") as f:
         json.dump(Data,f,indent=4)
-      await ctx.message.delete(delay=1)
+      embed=discord.Embed(title="message sent", color=0xadf3fd)
+      await interaction.response.send_message(embed=embed,ephemeral=True)
 
-    @commands.command(brief="Removes the <@&952668569068511323> Role from Everyone",help="",description="Running this command will remove the <@&952668569068511323> role from **Everyone** on the server")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def EndPerks(self,ctx):
-      await ctx.message.delete(delay=1)
+
+
+    @app_commands.command(name="endperks",description="Running this command will remove the event atendee role from Everyone on the server")
+    @app_commands.check(has_any_role)
+    async def EndPerks(self,interaction):
+      embed=discord.Embed(title="<a:loading:717856603340013669> Removing Roles", color=0xadf3fd)
+      await interaction.response.send_message(embed=embed,ephemral=True)
       with open("Data.json","r") as f:
           Data = json.load(f)
       Data["EventIDs"] = []
@@ -253,66 +298,44 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       guild = self.bot.get_guild(self.guild)
       role = discord.utils.get(guild.roles, id=self.EventAttendeeRole)
       if role is None:
-          await ctx.send("Role not found on this server!")
+          embed=discord.Embed(title="Role not found on this server!", color=0xadf3fd)
+          await interaction.response.edit_original_message(embed=embed,ephemeral=True)
           return
-      empty = True
+      has = len(role.members)
+      removed = 0
       for member in guild.members:
           if role in member.roles:
-              await ctx.send(f"Removed {role.mention} from {member.name}")
               await member.remove_roles(role)
-              empty = False
-      if empty:
-          await ctx.send(f"Nobody has the role {role.mention}")
-        
+              removed += 1
+      users = f"Removed {role.mention} from {removed}/{has} users."
+      embed=discord.Embed(title=f"Role removal",description=users, color=0xadf3fd)
+      await interaction.edit_original_message(embed=embed)
 
-    @commands.command(brief="Removes the <@&952907898206441532> Role from Everyone",help="",description="Running this command will remove the <@&952907898206441532> role from **Everyone** on the server")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def EndEvent(self,ctx):
-      await ctx.message.delete(delay=1)
-      with open("Data.json","r") as f:
-          Data = json.load(f)
-      for i in range(len(Data["TempRoles"])):
-          del Data["TempRoles"][i]
-      Data["EventIDs"] = []
-      with open("Data.json","w") as f:
-          json.dump(Data,f,indent=4)
-      guild = self.bot.get_guild(self.guild)
-      role = discord.utils.get(guild.roles, id=self.EventRole)
-      if role is None:
-          await ctx.send("Role not found on this server!")
-          return
-      empty = True
-      for member in guild.members:
-          if role in member.roles:
-              await ctx.send(f"Removed {role.mention} from {member.name}")
-              await member.remove_roles(role)
-              empty = False
-      if empty:
-          await ctx.send(f"Nobody has the role {role.mention}")
-      await ctx.send("All temp roles removed")
-    
-    @commands.command(brief="let you make a quick and easy poll!",help="<Poll Name>,<Option1>,<Option2>,<Option3>....",description="lets you make a quick and easy poll, note that the ',' is very importent its how the bot distinguishes between options you may also only have up too 6 options")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def Poll(self,ctx,*,args):
-      poll = args.split(",")
-      message = f"🔴 {poll[1]} \n🟠 {poll[2]} \n"
+
+    @app_commands.command(name="poll",description="lets you make a quick and easy poll")
+    @app_commands.check(has_any_role)
+    async def Poll(self,interaction,title:str,item1:str,item2:str,item3:str=None,item4:str=None,item5:str=None,item6:str=None):
+      embed=discord.Embed(title=f"<a:loading:717856603340013669> Creating Poll", color=0xadf3fd)
+      await interaction.response.send_message(embed=embed,ephemeral=True)
+      message = f"🔴 {item1} \n🟠 {item2} \n"
       emojis =["🔴","🟠"]
-      if len(poll) >= 4:
-        message = message +f"🟡 {poll[3]} \n"
+      if item3 != None:
+        message = message +f"🟡 {item3} \n"
         emojis.append("🟡")
-      if len(poll) >= 5:
-        message = message +f"🟢 {poll[4]} \n"
+      if item4 != None:
+        message = message +f"🟢 {item4} \n"
         emojis.append("🟢")
-      if len(poll) >= 6:
-        message = message +f"🔵 {poll[5]} \n"
+      if item5 != None:
+        message = message +f"🔵 {item5} \n"
         emojis.append("🔵")
-      if len(poll) >= 7:
-        message = message +f"🟣 {poll[6]} \n"
+      if item6 != None:
+        message = message +f"🟣 {item6} \n"
         emojis.append("🟣")
 
-      embed=discord.Embed(title=poll[0], description=message, color=0x000000)
+      embed=discord.Embed(title=title, description=message, color=0x000000)
       embed.set_author(name="POLL TIME!")
-      message = await ctx.send(embed=embed)
+
+      message = await interaction.channel.send(embed=embed)
       for emoji in emojis:
         await message.add_reaction(emoji)
       with open("messages.json","r") as f:
@@ -320,10 +343,12 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       Data["Polls"][f"{message.id}"]={"Reactions":{}}
       with open("messages.json","w") as f:
         json.dump(Data,f,indent=4)
-      await ctx.message.delete(delay=1)
-    @commands.command(brief="DMs everyone with the <@&952907898206441532> Role",help="<Link/Leave Empty>",description="Running this command will message **Everyone** with the <@&952907898206441532>")
-    @commands.has_any_role(953518880100352081,943881682275160124,953523758373679136,949433575525191700)
-    async def StartEvent(self,ctx,link:str=None):
+
+    @app_commands.command(name="start",description="starts the event")
+    @app_commands.check(has_any_role)
+    async def StartEvent(self,interaction,link:str=None):
+      embed=discord.Embed(title=f"<a:loading:717856603340013669> Starting Event", color=0xadf3fd)
+      await interaction.response.send_message(embed=embed,ephemeral=True)
       with open("Data.json","r") as f:
         Data = json.load(f)
       guild = self.bot.get_guild(self.guild)
@@ -331,40 +356,46 @@ class Events(commands.Cog,description=":tada: Event Hosting Module"):
       if link!=None:
         Data['vrclink'] = link
       if role is None:
-          await ctx.send("Role not found on this server!")
+          embed=discord.Embed(title=f"Role not found on this server!", color=0xadf3fd)
+          await interaction.followup.send(embed=embed,ephemeral=True)
           return
       empty = True
+      count = 0
+      sent = 0
       for member in guild.members:
           if role in member.roles:
-              await ctx.send(f"Sent A Dm To {member.name}")
+              count += 1 
               embed=discord.Embed(title="Join us In VR!",description=f"**Join us here >>>** {Data['vrclink']}",color=0x00ffee)
               embed.set_thumbnail(url="https://assets.vrchat.com/www/brand/vrchat-logo-white-transparent-crop-background.png")
               embed.set_image(url="https://media.discordapp.net/attachments/943888861069709383/952670455217659924/VRChat_1920x1080_2022-03-13_20-41-09.979.png?width=960&height=540")
               try:
                 await member.send(embed=embed)
               except:
-                ctx.send(f"{member.mention} dose not have their dms open and will not receive this an invite")
+                await interaction.followup.send(f"{member.mention} dose not have their dms open and will not receive this an invite")
+              else:
+                sent += 1
               empty = False
-      if empty:
-          await ctx.send(f"Nobody has the role {role.mention}")
+    
+      users = f"sent a dm to {count}/{sent} users."
+      embed=discord.Embed(title=f"Event DM",description=users, color=0xadf3fd)
+      await interaction.edit_original_message(embed=embed)
       with open("Data.json","w") as f:
         json.dump(Data,f,indent=4)
 
       found = False
-      for channel in ctx.guild.text_channels:
+      for channel in interaction.guild.text_channels:
         try:
           msg = await channel.fetch_message(Data['LastEvent'])
         except:
           found = False
         else:
-            await ctx.message.delete(delay=1)
-            view = LateEvent(ctx)
+            view = LateEvent(self.bot)
             await msg.edit(view=view)
-            await ctx.send(f"message was found and Changed in <#{channel.id}>")
+            await interaction.followup.send(f"message was found and Changed in <#{channel.id}>",ephemeral=True)
             found = True
             break
       if found == False:
-        await ctx.send("message could not be Found In any Channel :/")
+        await interaction.followup.send("message could not be Found In any Channel :/",ephemeral=True)
 
 async def setup(bot):
-  await bot.add_cog(Events(bot))
+  await bot.add_cog(Events(bot),guilds=[discord.Object(id=943404593105231882)])
