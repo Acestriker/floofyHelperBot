@@ -1,5 +1,6 @@
 import os
 import discord
+from discord import app_commands
 from discord.ui import Button, View
 from discord.ext import commands,tasks
 import json
@@ -17,7 +18,7 @@ class ModButtons(View):
         self.general = 943404593105231885
 
     @discord.ui.button(label = "Accept",style=3,emoji="✅")
-    async def Submit_callback(self,button,interaction):
+    async def Submit_callback(self,interaction,button):
         guild =self.bot.get_guild(self.guild)
         member = guild.get_member(self.user.id)
         if member is not None:
@@ -26,7 +27,7 @@ class ModButtons(View):
             role = discord.utils.get(guild.roles, id=943895260612919317)
             await member.add_roles(role)
 
-            embed=discord.Embed(title=f"Application Approved! <a:eeveeDance:945327984196337714>", description=f"Thank you for your responses. Here's a few things to enjoy in our server!\n> <:zz_orangeDash:944011897290764350> Head to <#943891320802529330> to get your roles sorted\n> <:zz_yellowDash:944011897290780732> Any announcements will be posted in <#943887232304037948>\n> <:zz_greenDash:944011897227862097> We have occasional giveaways and events in <#943888861069709383>\n> <:zz_blueDash:944011896640667719> There is a starboard here - <#943983948449583104>, If you like someone's post, react with a ⭐ to their post, if three people react to the post, it's placed in the starboard!", color=0x00ff00)
+            embed=discord.Embed(title=f"Application Approved! <a:eeveeDance:945327984196337714>", description=f"Thank you for your responses. Here's a few things to enjoy in our server!\n> <:FD_orangeDash:976202267441119252> Head to <#943891320802529330> to get your roles sorted\n> <:FD_yellowDash:976202267298512898> Any announcements will be posted in <#943887232304037948>\n> <:FD_greenDash:976202267290140713> We have occasional giveaways and events in <#943888861069709383>\n> <:FD_blueDash:976202267235581992> There is a starboard here - <#943983948449583104>, If you like someone's post, react with a ⭐ to their post, if three people react to the post, it's placed in the starboard!", color=0x00ff00)
             embed.set_author(name="Approved!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
             await interaction.response.send_message("User Approved!",ephemeral=True)
             await self.user.send(embed=embed)
@@ -56,7 +57,7 @@ class ModButtons(View):
             img.paste(pfp, (117,90), pfp)
             draw = ImageDraw.Draw(img)
             W = 1350
-            txt = f"Welcome {self.user.name}#{self.user.discriminator} to Ace's Abode!"
+            txt = f"Welcome {self.user.name}#{self.user.discriminator} to Floofy Den!"
             txt = textwrap.wrap(txt, width=40)
             txt.append(f"This server now has {len(guild.members)} members.")
             current_h, pad=300, 80
@@ -74,9 +75,6 @@ class ModButtons(View):
             with open("Users.json","r") as f:
                     Data = json.load(f)
             print(Data[f"{self.user.id}"]["age"])
-            if Data[f"{self.user.id}"]["age"] == "18+":
-                role = discord.utils.get(guild.roles, id=966429116167487548)
-                await member.add_roles(role)
             del Data[f"{self.user.id}"]
             with open("Users.json","w") as f:
                 json.dump(Data,f)
@@ -91,7 +89,7 @@ class ModButtons(View):
             await interaction.message.edit(content="",view=view,embed=embed)
 
     @discord.ui.button(label = "Deny",style=4,emoji="✖️")
-    async def Button_callback(self,button,interaction):
+    async def Button_callback(self,interaction,button):
         guild =self.bot.get_guild(self.guild)
         member = guild.get_member(self.user.id)
         if member is not None:
@@ -125,7 +123,7 @@ class ModButtons(View):
     
 
     @discord.ui.button(label = "Kick",style=4)
-    async def kick_callback(self,button,interaction):
+    async def kick_callback(self,interaction,button):
         def check(m):
             return m.author == interaction.user
         await interaction.response.send_message("Send a message to add a reason",ephemeral=True)
@@ -147,7 +145,7 @@ class ModButtons(View):
         await msg.delete(delay=1)
 
     @discord.ui.button(label = "Ban",style=4)
-    async def ban_callback(self,button,interaction):
+    async def ban_callback(self,interaction,button):
         def check(m):
             return m.author == interaction.user
         await interaction.response.send_message("Send a message to add a reason",ephemeral=True)
@@ -177,12 +175,12 @@ class VerifecationFinish(View):
         self.bot = bot
         self.guild = guild
         self.Client =Client
-    @discord.ui.button(label = "Submit",style=3,emoji="<:zz_greenDash:944011897227862097>")
-    async def Submit_callback(self,button,interaction):
+    @discord.ui.button(label = "Submit",style=3,emoji="<:FD_greenDash:976202267290140713>")
+    async def Submit_callback(self,interaction,button):
         embed=discord.Embed(title=f"Your verification has been submitted!", description="Once a staff member has aproved your verification, you'll be given access to the server!\n This might take some time though so don't panic if you don't get accepted immediately.", color=0xadf3fd)
         embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
-        Submit = Button(label = "Submit",style=3,emoji="<:zz_greenDash:944011897227862097>",disabled=True)
-        Restart = Button(label = "Restart",style=1,emoji="<:zz_blueDash:944011896640667719>",disabled=True)
+        Submit = Button(label = "Submit",style=3,emoji="<:FD_greenDash:976202267290140713>",disabled=True)
+        Restart = Button(label = "Restart",style=1,emoji="<:FD_blueDash:976202267235581992>",disabled=True)
         view = View()
         view.add_item(Submit)
         view.add_item(Restart)
@@ -196,7 +194,7 @@ class VerifecationFinish(View):
         embed.set_author(name=f"{interaction.user.name}#{interaction.user.discriminator} ({interaction.user.id})", icon_url=f"{interaction.user.avatar}")
         embed.set_thumbnail(url=f"{interaction.user.avatar}")
         import time
-        embed.add_field(name="accout created", value=f"<t:{round(time.mktime(interaction.user.created_at.timetuple()))}:R>", inline=False)
+        embed.add_field(name="Account created", value=f"<t:{round(time.mktime(interaction.user.created_at.timetuple()))}:R>", inline=False)
         embed.add_field(name="Age", value=f"{Data[f'{interaction.user.id}']['age']}", inline=False)
         embed.add_field(name="Why they joined", value=f"{Data[f'{interaction.user.id}']['whyJoin']}", inline=True)
         embed.add_field(name="Tell us about yourself", value=f"{Data[f'{interaction.user.id}']['TellusAboutYou']}", inline=True)
@@ -206,8 +204,8 @@ class VerifecationFinish(View):
         User = interaction.user
         await channel.send("<@&965729386915573791>",embed=embed,view=ModButtons(self.Client,User))
 
-    @discord.ui.button(label = "Restart",style=1,emoji="<:zz_blueDash:944011896640667719>")
-    async def Button_callback(self,button,interaction):
+    @discord.ui.button(label = "Restart",style=1,emoji="<:FD_blueDash:976202267235581992>")
+    async def Button_callback(self,interaction,button):
         with open("Users.json","r") as f:
           Data = json.load(f)
         Data[f"{interaction.user.id}"] = {
@@ -217,13 +215,13 @@ class VerifecationFinish(View):
         }
         with open("Users.json","w") as f:
             json.dump(Data,f)
-        Submit = Button(label = "Submit",style=3,emoji="<:zz_greenDash:944011897227862097>",disabled=True)
-        Restart = Button(label = "Restart",style=1,emoji="<:zz_blueDash:944011896640667719>",disabled=True)
+        Submit = Button(label = "Submit",style=3,emoji="<:FD_greenDash:976202267290140713>",disabled=True)
+        Restart = Button(label = "Restart",style=1,emoji="<:FD_blueDash:976202267235581992>",disabled=True)
         view = View()
         view.add_item(Submit)
         view.add_item(Restart)
         await interaction.response.edit_message(view=view)
-        embed=discord.Embed(title=f"How old Are you? {interaction.user.name}", description="Click one of the buttons below to select your age range.\nlying about your age will result in a ban", color=0xadf3fd)
+        embed=discord.Embed(title=f"How old are you? {interaction.user.name}", description="Click one of the buttons below to select your age range.\nLying about your age will result in a ban", color=0xadf3fd)
         embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
         view = VerifecationAge(interaction)
         await interaction.channel.send(embed=embed,view=view)
@@ -236,16 +234,16 @@ class VerifecationAgeDisabled(View):
         self.bot = bot
 
     @discord.ui.button(label = "Under 13",style=2,custom_id="13",disabled=True)
-    async def Under13_callback(self,button,interaction):
+    async def Under13_callback(self,interaction,button):
         pass
     @discord.ui.button(label = "13-15",style=1,custom_id="13+",disabled=True)
-    async def Over13_callback(self,button,interaction):
+    async def Over13_callback(self,interaction,button):
         pass
     @discord.ui.button(label = "16-17",style=3,custom_id="16+",disabled=True)
-    async def Over16_callback(self,button,interaction):
+    async def Over16_callback(self,interaction,button):
         pass
     @discord.ui.button(label = "18+",style=4,custom_id="18+",disabled=True)
-    async def Over18_callback(self,button,interaction):
+    async def Over18_callback(self,interaction,button):
         pass
     async def on_error(self,error,item,interaction):
         raise error
@@ -256,7 +254,7 @@ class VerifecationAge(View):
         self.bot = bot
   #---------------------------------------------------------------------------------------------------------------------------
     @discord.ui.button(label = "Under 13",style=2,custom_id="13")
-    async def Under13_callback(self,button,interaction):
+    async def Under13_callback(self,interaction,button):
         with open("Users.json","r") as f:
             Data = json.load(f)
         Data[f"{interaction.user.id}"]["age"] = "13"
@@ -278,7 +276,7 @@ class VerifecationAge(View):
 
         
     @discord.ui.button(label = "13-15",style=1,custom_id="13+")
-    async def Over13_callback(self,button,interaction):
+    async def Over13_callback(self,interaction,button):
         with open("Users.json","r") as f:
             Data = json.load(f)
         Data[f"{interaction.user.id}"]["age"] = "13-15"
@@ -286,11 +284,11 @@ class VerifecationAge(View):
         with open("Users.json","w") as f:
             json.dump(Data,f)
         await interaction.response.edit_message(view=VerifecationAgeDisabled(interaction))
-        embed=discord.Embed(title=f"Why did you join this server?", description="**Tell us how you found us**\n if a friend invited you, tell us who!\n next message will be submitted as a reponse to this question.", color=0xadf3fd)
+        embed=discord.Embed(title=f"Why did you join this server?", description="**Tell us how you found us**\n If a friend invited you, tell us who!\n Next message will be submitted as a reponse to this question.", color=0xadf3fd)
         embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
         await interaction.channel.send(embed=embed)
     @discord.ui.button(label = "16-17",style=3,custom_id="16+")
-    async def Over16_callback(self,button,interaction):
+    async def Over16_callback(self,interaction,button):
         with open("Users.json","r") as f:
             Data = json.load(f)
         Data[f"{interaction.user.id}"]["age"] = "16-17"
@@ -298,11 +296,11 @@ class VerifecationAge(View):
         with open("Users.json","w") as f:
             json.dump(Data,f)
         await interaction.response.edit_message(view=VerifecationAgeDisabled(interaction))
-        embed=discord.Embed(title=f"Why did you join this server?", description="**Tell us how you found us**\n if a friend invited you, tell us who!\nYour next message will be submitted as a reponse to this question.", color=0xadf3fd)
+        embed=discord.Embed(title=f"Why did you join this server?", description="**Tell us how you found us**\n If a friend invited you, tell us who!\nYour next message will be submitted as a reponse to this question.", color=0xadf3fd)
         embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
         await interaction.channel.send(embed=embed)
     @discord.ui.button(label = "18+",style=4,custom_id="18+")
-    async def Over18_callback(self,button,interaction):
+    async def Over18_callback(self,interaction,button):
         with open("Users.json","r") as f:
             Data = json.load(f)
         Data[f"{interaction.user.id}"]["age"] = "18+"
@@ -310,7 +308,7 @@ class VerifecationAge(View):
         with open("Users.json","w") as f:
             json.dump(Data,f)
         await interaction.response.edit_message(view=VerifecationAgeDisabled(interaction))
-        embed=discord.Embed(title=f"Why did you join this server?", description="**Tell us how you found us**\n if a friend invited you, tell us who!\nYour next message will be submitted as a reponse to this question.", color=0xadf3fd)
+        embed=discord.Embed(title=f"Why did you join this server?", description="**Tell us how you found us**\n If a friend invited you, tell us who!\nYour next message will be submitted as a reponse to this question.", color=0xadf3fd)
         embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
         await interaction.channel.send(embed=embed)
     async def on_error(self,error,item,interaction):
@@ -321,8 +319,8 @@ class VerifecationStart(View):
     super().__init__(timeout=None)
     self.bot = bot
   #---------------------------------------------------------------------------------------------------------------------------#
-  @discord.ui.button(label = "Start Verification",style=3,custom_id="StartVerify",emoji="<:zz_greenDash:944011897227862097>")
-  async def Button_callback(self,button,interaction):
+  @discord.ui.button(label = "Start Verification",style=3,custom_id="StartVerify",emoji="<:FD_greenDash:976202267290140713>")
+  async def Button_callback(self,interaction,button):
         with open("Users.json","r") as f:
             Data = json.load(f)
         print(interaction.user.id)
@@ -344,22 +342,37 @@ class VerifecationStart(View):
   async def on_error(self,error,item,interaction):
     raise error
 
-class Verification(commands.Cog):
+class Verification(commands.GroupCog, name="verification"):
     def __init__(self,bot):
         self.bot = bot
         self.me =943873910699618364
 
     @commands.Cog.listener()
     async def on_member_join(self,member):
+        with open("Users.json","r") as f:
+            Data = json.load(f)
+        Data["wait"].append(member.id) 
+        with open("Users.json","w") as f:
+            json.dump(Data,f)
         role = discord.utils.get(member.guild.roles, id=944776799974461511)
         await member.add_roles(role)
-        embed=discord.Embed(title=f"Welcome {member.name} to Aces Abode! ", description="To gain access to the server,\n make sure to read over the <#943890671339733012> and **complete our verification.** \n You can get started by clicking the button below.", color=0xadf3fd)
+        embed=discord.Embed(title=f"Welcome {member.name} to Floofy Den! ", description="To gain access to the server,\n make sure to read over the <#943890671339733012> and **complete our verification.** \n You can get started by clicking the button below.", color=0xadf3fd)
         embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
         view = VerifecationStart(self.bot)
         await member.send(embed=embed,view=view)
 
     @commands.Cog.listener()
     async def on_message(self,message):
+        if message.channel.id == 954988892556242965 and message.author != self.bot.user:
+            with open("Users.json","r") as f:
+                Data = json.load(f)
+            if message.author.id in Data["wait"]:
+                embed=discord.Embed(title=f"Hi {message.author.name}, don't forget to verify!", description="If you're having trouble verifying or didn't receive a DM from <@953794936736727110> (make sure your DMs are open), open a ticket in <#955991656568614972>." , color=0xadf3fd)
+                await message.reply(embed=embed)
+                Data["wait"].remove(message.author.id)
+                with open("Users.json","w") as f:
+                    json.dump(Data,f)
+            
         if message.channel.type is discord.ChannelType.private and message.author != self.bot.user:
             with open("Users.json","r") as f:
                 Data = json.load(f)
@@ -380,6 +393,19 @@ class Verification(commands.Cog):
 
             with open("Users.json","w") as f:
                 json.dump(Data,f)
+    @app_commands.command(name="send",description="sends verification message to a user")
+    async def message(self,interaction,member:discord.Member):
+        embed=discord.Embed(title=f"Welcome {member.name} to Aces Abode! ", description="To gain access to the server,\n make sure to read over the <#943890671339733012> and **complete our verification.** \n You can get started by clicking the button below.", color=0xadf3fd)
+        embed.set_author(name="Welcome!", icon_url="https://media.discordapp.net/attachments/944096582851231804/954796896084439040/drctfvygbhbgvftcdrxctfvg.png?width=180&height=180")
+        view = VerifecationStart(self.bot)
+        try:
+            await member.send(embed=embed,view=view)
+        except:
+            embed=discord.Embed(title=f"Sent verification to user", color=0xadf3fd)
+            await interaction.response.send_message(embed=embed,ephemeral=True)
+        else:
+            embed=discord.Embed(title=f"Sent verification to user", color=0xadf3fd)
+            await interaction.response.send_message(embed=embed,ephemeral=True)
 
 async def setup(bot):
-  await bot.add_cog(Verification(bot)) 
+  await bot.add_cog(Verification(bot),guilds=[discord.Object(id=943404593105231882)]) 
