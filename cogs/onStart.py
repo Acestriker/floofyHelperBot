@@ -57,7 +57,6 @@ class onStart(commands.Cog,app_commands.Group,name="core"):
     async def ping(self,interaction):
         import time
         embed=discord.Embed(title=f'Ping is: {round(self.bot.latency*1000)}ms', color=0xadf3fd)
-        embed.add_field(name="accout created", value=f"<t:{round(time.mktime(interaction.user.created_at.timetuple()))}:R>", inline=False)
         await interaction.response.send_message(embed=embed,ephemeral=True)
 
 async def setup(bot: commands.Bot):
