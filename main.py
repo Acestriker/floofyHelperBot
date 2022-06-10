@@ -13,7 +13,7 @@ the modules required for this project can be found in the requirements.txt file
 .JMMmmmd9      ,V         .JMMmmmdP'    `Ybmd9'  M9mmmP'.JMML  JMML..JMML..JMMmmmdP'    `Ybmd9'   YMMMMMb  
               ,V                                                                                 6'     dP 
            OOb"                                                                                  Ybmmmd'   
-DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING Doshi is a very cool person :> Hi Hi Hi:>
+DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
 """
 
 
