@@ -24,7 +24,7 @@ class ChatButtons(View):
         self.bot = bot
 
     @discord.ui.button(label = "Start a Chat",style=3)
-    async def Submit_callback(self,button,interaction):
+    async def Submit_callback(self,interaction,button):
         with open("AI.json","r") as f:
             Data = json.load(f)
         import time
@@ -49,7 +49,7 @@ class ChatButtons(View):
         with open("AI.json","w") as f:
             json.dump(Data,f,indent=3)
     #@discord.ui.button(label = "Deny",style=4)
-    #async def Button_callback(self,button,interaction):
+    #async def Button_callback(self,interaction,button):
   
     async def on_error(self,error,item,interaction):
         raise error

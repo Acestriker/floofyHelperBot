@@ -19,6 +19,8 @@ DO NOT EDIT THIS UNLESS YOU KNOW WHAT YOUR DOING
 
 # Imports
 import os
+#os.system("pip install -U git+https://github.com/Rapptz/discord.py")
+#os.system("pip install pillow")
 #import cronitor
 import discord
 from discord.ext import commands,tasks
@@ -28,8 +30,8 @@ from discord.ext.commands import CommandNotFound
 
 
 # Monitor Connector
-cronitor.api_key = CONTAINERAPIKEY
-monitor = cronitor.Monitor(MONITORTOKEN)
+#cronitor.api_key = CONTAINERAPIKEY
+#monitor = cronitor.Monitor(MONITORTOKEN)
 
 # Main Bot Class
 class Mybot(commands.Bot):
@@ -38,7 +40,7 @@ class Mybot(commands.Bot):
 		self.initial_extensions = STARTUP
 
 	async def on_ready(self):
-		self.Ping.start()
+		#self.Ping.start()
 		await self.load_extension("cogs.onStart")
 		for ext in self.initial_extensions:
 			await self.load_extension(ext)

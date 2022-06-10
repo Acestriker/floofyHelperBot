@@ -1,11 +1,9 @@
-from tokenize import Floatnumber
 import discord
 from discord import app_commands
 from discord.ui import Button, View
 from discord.ext import commands,tasks
 import json
 
-from numpy import double
 class LateEvent(View):
   def __init__(self,bot):
     super().__init__(timeout=None)
@@ -14,7 +12,7 @@ class LateEvent(View):
   
   #---------------------------------------------------------------------------------------------------------------------------#
   @discord.ui.button(label = "Apply",style=1,custom_id="Apply",emoji="🎉")
-  async def Button_callback(self, button, interaction):
+  async def Button_callback(self, interaction,button):
     with open("Data.json","r") as f:
       Data = json.load(f)
     if interaction.user.id in Data["EventIDs"]:
@@ -50,7 +48,7 @@ class MyView(View):
   
   #---------------------------------------------------------------------------------------------------------------------------#
   @discord.ui.button(label = "Apply",style=1,custom_id="Apply",emoji="🎉")
-  async def Button_callback(self, button, interaction):
+  async def Button_callback(self, interaction,button):
     with open("Data.json","r") as f:
       Data = json.load(f)
     if interaction.user.id in Data["EventIDs"]:
@@ -71,7 +69,7 @@ class MyView(View):
     raise error
 
 #---------------------------------------------------------------------------------------------------------------------------#
-class Events(commands.Cog,app_commands.Group, name="event"):
+class Events(commands.GroupCog, name="event"):
     def __init__(self,bot):
         self.bot = bot
         self.guild = 943404593105231882 # < < < change to Your Server ID
@@ -150,33 +148,39 @@ class Events(commands.Cog,app_commands.Group, name="event"):
         print(f"{member} has left {before.channel}")
       elif before.channel.id != after.channel.id:
         print(f"{member} has switched from {before.channel} to {after.channel}")
+
+
       if after.channel and after.channel.id == self.EventChannel:
         import time
         now = int(time.time())
         with open("Data.json","r") as f:
           Data = json.load(f)
-        Data["timeCodes"][member.name]=now
+        Data["timeCodes"][f"{member.id}"]=now
         with open("Data.json","w") as f:
           json.dump(Data,f,indent=4)
+
+
       if not after.channel and before.channel.id == self.EventChannel:
         import time
         now = int(time.time())
         with open("Data.json","r") as f:
           Data = json.load(f)
-        Then=Data["timeCodes"][member.name]
-        del Data["timeCodes"][member.name]
+        Then=Data["timeCodes"][f"{member.id}"]
+        del Data["timeCodes"][f"{member.id}"]
         role = discord.utils.get(member.guild.roles, id=self.EventAttendeeRole)
         if (now-Then)>= 600 and role not in member.roles:
           await member.add_roles(role)
         with open("Data.json","w") as f:
           json.dump(Data,f,indent=4)
-      elif after.channel and before.channel and before.channel.id == self.EventChannel:
+
+
+      elif before.channel != None and after.channel != None and after.channel.id != before.channel.id and before.channel.id == self.EventChannel:
         import time
         now = int(time.time())
         with open("Data.json","r") as f:
           Data = json.load(f)
-        Then=Data["timeCodes"][member.name]
-        del Data["timeCodes"][member.name]
+        Then=Data["timeCodes"][f"{member.id}"]
+        del Data["timeCodes"][f"{member.id}"]
         role = discord.utils.get(member.guild.roles, id=self.EventAttendeeRole)
         if (now-Then)>= 600 and role not in member.roles:
           await member.add_roles(role)
@@ -208,7 +212,7 @@ class Events(commands.Cog,app_commands.Group, name="event"):
             break
       if found == False:
         embed=discord.Embed(title=f"Message could not be found in any channel :/", color=0xadf3fd)
-        await interaction.edit_original_message(embed=embed,ephemeral=True)
+        await interaction.edit_original_message(embed=embed)
 
       embed=discord.Embed(title="<a:loading:717856603340013669> Removing Roles", color=0xadf3fd)
       await interaction.edit_original_message(embed=embed)
@@ -287,9 +291,9 @@ class Events(commands.Cog,app_commands.Group, name="event"):
 
     @app_commands.command(name="endperks",description="Running this command will remove the event atendee role from Everyone on the server")
     @app_commands.check(has_any_role)
-    async def EndPerks(self,interaction):
+    async def endperks(self,interaction):
       embed=discord.Embed(title="<a:loading:717856603340013669> Removing Roles", color=0xadf3fd)
-      await interaction.response.send_message(embed=embed,ephemral=True)
+      await interaction.response.send_message(embed=embed,ephemeral=True)
       with open("Data.json","r") as f:
           Data = json.load(f)
       Data["EventIDs"] = []
@@ -299,7 +303,7 @@ class Events(commands.Cog,app_commands.Group, name="event"):
       role = discord.utils.get(guild.roles, id=self.EventAttendeeRole)
       if role is None:
           embed=discord.Embed(title="Role not found on this server!", color=0xadf3fd)
-          await interaction.response.edit_original_message(embed=embed,ephemeral=True)
+          await interaction.response.edit_original_message(embed=embed)
           return
       has = len(role.members)
       removed = 0

@@ -1,0 +1,12 @@
+PREFIX = "t~" # < < < Your Prefix Here
+#TOKEN = "OTUzNzk0OTM2NzM2NzI3MTEw.YjJwwQ.sljpLX-_Cj8IaKRfNqK5KXMd7d8"
+#APPID = "948821516022317056"
+TOKEN = "OTQ4ODIxNTE2MDIyMzE3MDU2.YiBY5Q.DPpsIQFDiC5Yo-AqCnTJ67dXNzc"
+APPID = "953794936736727110"
+VERSION = "2.1"
+STARTUP = ["cogs.Verification","cogs.Events","cogs.Soup","cogs.Interactions"]
+HIDDENCOGS = ["Interactions","Verification"]
+RSKEY = "rkUpctMRgPkq"
+OPENAIKEY = "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"
+CONTAINERAPIKEY = "27672841ce794a86b38064638b5a48f5"
+MONITORTOKEN ="x5MIGv"

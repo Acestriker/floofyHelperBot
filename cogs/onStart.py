@@ -3,7 +3,7 @@ from discord import Embed, app_commands
 from discord.app_commands import check
 from discord.ext import commands
 
-class onStart(commands.Cog,app_commands.Group,name="core"):
+class onStart(commands.GroupCog,name="core"):
     def __init__(self,bot : commands.Bot) -> None:
         self.bot = bot
         super().__init__()
@@ -53,7 +53,7 @@ class onStart(commands.Cog,app_commands.Group,name="core"):
         await self.bot.tree.sync(guild=discord.Object(id=943404593105231882))
         
 
-    @app_commands.command(name="ping",description="sends the ping of the bot")
+    @app_commands.command(name="ping",description="Sends the ping of the bot")
     async def ping(self,interaction):
         import time
         embed=discord.Embed(title=f'Ping is: {round(self.bot.latency*1000)}ms', color=0xadf3fd)
