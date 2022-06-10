@@ -1,8 +1,8 @@
 """
-Code for the floofy Helper Bot for > https://discord.gg/4beans
+Code for the floofy Helper Bot for > https://discord.gg/FloofyDen
 You can find me on github > https://github.com/DoshiDog
-The Repositorie for this project > https://github.com/Acestriker/floofyHelperBot
-the modules required for this project can be found in the requirements.txt file
+The Repository for this project > https://github.com/Acestriker/floofyHelperBot
+The modules required for this project can be found in the requirements.txt file
                                                           ,,          ,,                                   
 `7MMMMMYp,                `7MMMMMYb.                    `7MM          db  `7MMMMMYb.                       
   MM    Yb                  MM    `Yb.                    MM                MM    `Yb.                     
@@ -57,7 +57,7 @@ class Mybot(commands.Bot):
 					except:
 						pass
 					else:
-						print("fixed last Event message")
+						print("✅ Fixed last event message")
 						view = MyView(bot)
 						await msg.edit(view=view)
 						break
@@ -68,9 +68,9 @@ class Mybot(commands.Bot):
 				msg = await channel.fetch_message(969271592133754890)
 				view = ChatButtons(bot)
 				await msg.edit(view=view)
-				print("fixed Chat bot message")
+				print("✅ Fixed chat bot messages")
 		await bot.tree.sync(guild=discord.Object(id=943404593105231882))
-		print(f'{self.user} has connected to Discord!')
+		print(f'✅ {self.user} has connected to Discord!')
 
 	# Monitor ping routine
 	@tasks.loop(seconds=30)
